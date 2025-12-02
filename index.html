@@ -20,6 +20,29 @@
             min-height: 100vh;
             background: linear-gradient(135deg, #0019FF 0%, #FFA100 100%);
             padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Images décoratives sur les côtés */
+        .side-image {
+            position: fixed;
+            width: 250px;
+            height: auto;
+            opacity: 0.15;
+            z-index: 0;
+        }
+        
+        .side-image.left {
+            left: -30px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        
+        .side-image.right {
+            right: -30px;
+            top: 50%;
+            transform: translateY(-50%);
         }
         
         .container {
@@ -30,6 +53,8 @@
             max-width: 420px;
             width: 100%;
             text-align: center;
+            position: relative;
+            z-index: 1;
         }
         
         .app-icon {
@@ -72,52 +97,63 @@
             display: flex;
             flex-direction: column;
             gap: 16px;
+            align-items: center;
         }
         
         .store-button {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 14px;
-            padding: 18px 28px;
-            text-decoration: none;
-            border-radius: 14px;
-            font-size: 17px;
-            font-weight: 700;
+            display: inline-block;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            border: none;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            border-radius: 12px;
+            overflow: hidden;
         }
         
         .store-button:hover {
             transform: translateY(-3px);
-            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
         }
         
         .store-button:active {
             transform: translateY(-1px);
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
         }
         
-        .store-icon {
-            width: 30px;
-            height: 30px;
-        }
-        
-        .google-play {
-            background: linear-gradient(135deg, #0019FF 0%, #0056FF 100%);
-            color: white;
-        }
-        
-        .app-store {
-            background: linear-gradient(135deg, #FFA100 0%, #FF8800 100%);
-            color: white;
+        .store-button img {
+            display: block;
+            width: 200px;
+            height: auto;
         }
         
         /* Responsive pour mobile */
+        @media (max-width: 768px) {
+            .side-image {
+                width: 180px;
+                opacity: 0.1;
+            }
+            
+            .side-image.left {
+                left: -50px;
+            }
+            
+            .side-image.right {
+                right: -50px;
+            }
+        }
+        
         @media (max-width: 480px) {
             body {
                 padding: 15px;
+            }
+            
+            .side-image {
+                width: 140px;
+                opacity: 0.08;
+            }
+            
+            .side-image.left {
+                left: -60px;
+            }
+            
+            .side-image.right {
+                right: -60px;
             }
             
             .container {
@@ -141,15 +177,8 @@
                 margin-bottom: 30px;
             }
             
-            .store-button {
-                padding: 16px 24px;
-                font-size: 16px;
-                gap: 12px;
-            }
-            
-            .store-icon {
-                width: 26px;
-                height: 26px;
+            .store-button img {
+                width: 170px;
             }
         }
         
@@ -168,14 +197,17 @@
                 font-size: 24px;
             }
             
-            .store-button {
-                padding: 14px 20px;
-                font-size: 15px;
+            .store-button img {
+                width: 150px;
             }
         }
     </style>
 </head>
 <body>
+    <!-- Images décoratives sur les côtés -->
+    <img src="https://levirusdzrzs.github.io/speedapp/CLIENT.png" alt="" class="side-image left">
+    <img src="https://levirusdzrzs.github.io/speedapp/CLIENT1.png" alt="" class="side-image right">
+    
     <div class="container">
         <div class="app-icon">
             <img src="https://levirusdzrzs.github.io/speedapp/logospeeddelivro.png" alt="Logo SPEED DELIVRO">
@@ -184,14 +216,12 @@
         <p class="subtitle">Téléchargez maintenant</p>
         
         <div class="buttons">
-            <a href="https://play.google.com/store/apps/details?id=com.speed.delivro.buyer" class="store-button google-play">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" alt="Google Play" class="store-icon" style="width: 140px; height: auto;">
-                <span>Google Play</span>
+            <a href="https://play.google.com/store/apps/details?id=com.speed.delivro.buyer" class="store-button">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" alt="Télécharger sur Google Play">
             </a>
             
-            <a href="https://apps.apple.com/tn/app/speeddelivro/id6747889248" class="store-button app-store">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Download_on_the_App_Store_Badge.svg" alt="App Store" class="store-icon" style="width: 140px; height: auto;">
-                <span>App Store</span>
+            <a href="https://apps.apple.com/tn/app/speeddelivro/id6747889248" class="store-button">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Download_on_the_App_Store_Badge.svg" alt="Télécharger sur App Store">
             </a>
         </div>
     </div>
