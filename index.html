@@ -69,13 +69,25 @@
             box-shadow: 0 10px 40px rgba(0, 25, 255, 0.2);
             overflow: hidden;
             border: 0px solid #f0f0f0;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        
+
+        .app-icon:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 50px rgba(0, 25, 255, 0.35);
+        }
+
+        .app-icon:active {
+            transform: scale(0.98);
+        }
+
         .app-icon img {
             width: 100%;
             height: 100%;
             object-fit: cover;
             padding: 0px;
+            pointer-events: none;
         }
         
         h1 {
@@ -209,11 +221,11 @@
     <img src="https://levirusdzrzs.github.io/speedapp/CLIENT1.png" alt="" class="side-image right">
     
     <div class="container">
-        <div class="app-icon">
+        <div class="app-icon" id="appIcon" onclick="redirectToStore()">
             <img src="https://levirusdzrzs.github.io/speedapp/appicon.png" alt="Logo SPEED DELIVRO">
         </div>
         <h1>SPEED DELIVRO</h1>
-        <p class="subtitle">Téléchargez maintenant</p>
+        <p class="subtitle">Cliquez sur le logo pour télécharger</p>
         
         <div class="buttons">
             <a href="https://play.google.com/store/apps/details?id=com.speed.delivro.buyer" target="_blank" class="store-button">
@@ -225,6 +237,25 @@
             </a>
         </div>
     </div>
+
+<script>
+    function redirectToStore() {
+        const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+
+        // Détection iOS (iPhone, iPad, iPod)
+        if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
+            window.open('https://apps.apple.com/tn/app/speeddelivro/id6747889248', '_blank');
+        }
+        // Détection Android
+        else if (/android/i.test(userAgent)) {
+            window.open('https://play.google.com/store/apps/details?id=com.speed.delivro.buyer', '_blank');
+        }
+        // Par défaut (desktop ou autre) - rediriger vers Play Store
+        else {
+            window.open('https://play.google.com/store/apps/details?id=com.speed.delivro.buyer', '_blank');
+        }
+    }
+</script>
 </body>
 <style>
     .whatsapp-button {
