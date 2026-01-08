@@ -5,18 +5,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SPEED DELIVRO</title>
 
-    <!-- Redirection instantanée basée sur la détection de l'appareil -->
+    <!-- Redirection instantanée avec détection de présence de l'application -->
     <script>
         (function() {
             const userAgent = navigator.userAgent || navigator.vendor || window.opera;
 
             // Détection iOS (iPhone, iPad, iPod)
             if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
-                window.location.replace('https://apps.apple.com/tn/app/speeddelivro/id6747889248');
+                // Tenter d'ouvrir l'application si elle est installée
+                const appScheme = 'speeddelivro://';
+                const appStoreUrl = 'https://apps.apple.com/tn/app/speeddelivro/id6747889248';
+
+                // Essayer d'ouvrir l'app
+                window.location.href = appScheme;
+
+                // Si l'app n'est pas installée, rediriger vers l'App Store après un court délai
+                setTimeout(function() {
+                    window.location.replace(appStoreUrl);
+                }, 1500);
             }
             // Détection Android
             else if (/android/i.test(userAgent)) {
-                window.location.replace('https://play.google.com/store/apps/details?id=com.speed.delivro.buyer');
+                // Intent URL pour Android - ouvre l'app si installée, sinon va au Play Store
+                const intentUrl = 'intent://speeddelivro#Intent;scheme=speeddelivro;package=com.speed.delivro.buyer;S.browser_fallback_url=https://play.google.com/store/apps/details?id=com.speed.delivro.buyer;end';
+
+                window.location.replace(intentUrl);
             }
             // Par défaut (desktop ou appareil inconnu) - rediriger vers le site web
             else {
