@@ -3,14 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Télécharger SPEED DELIVRO</title>
+    <title>SPEED DELIVRO</title>
+
+    <!-- Redirection instantanée basée sur la détection de l'appareil -->
+    <script>
+        (function() {
+            const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+
+            // Détection iOS (iPhone, iPad, iPod)
+            if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
+                window.location.replace('https://apps.apple.com/tn/app/speeddelivro/id6747889248');
+            }
+            // Détection Android
+            else if (/android/i.test(userAgent)) {
+                window.location.replace('https://play.google.com/store/apps/details?id=com.speed.delivro.buyer');
+            }
+            // Par défaut (desktop ou appareil inconnu) - rediriger vers le site web
+            else {
+                window.location.replace('https://www.speeddelivro.com');
+            }
+        })();
+    </script>
+
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
             display: flex;
@@ -22,6 +43,7 @@
             padding: 20px;
             position: relative;
             overflow: hidden;
+            visibility: hidden; /* Masquer le contenu pendant la redirection */
         }
         
         /* Images décoratives sur les côtés */
@@ -221,41 +243,22 @@
     <img src="https://levirusdzrzs.github.io/speedapp/CLIENT1.png" alt="" class="side-image right">
     
     <div class="container">
-        <div class="app-icon" id="appIcon" onclick="redirectToStore()">
+        <div class="app-icon" id="appIcon">
             <img src="https://levirusdzrzs.github.io/speedapp/appicon.png" alt="Logo SPEED DELIVRO">
         </div>
         <h1>SPEED DELIVRO</h1>
-        <p class="subtitle">Cliquez sur le logo pour télécharger</p>
-        
+        <p class="subtitle">Redirection en cours...</p>
+
         <div class="buttons">
             <a href="https://play.google.com/store/apps/details?id=com.speed.delivro.buyer" target="_blank" class="store-button">
                 <img src="https://upload.wikimedia.org/wikipedia/commons/8/8e/Google_Play_Store_badge_FR.svg" alt="Télécharger sur Google Play">
             </a>
-            
+
             <a href="https://apps.apple.com/tn/app/speeddelivro/id6747889248" target="_blank" class="store-button">
                 <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/40/Download_on_the_App_Store_Badge_FRCA_RGB_blk.svg/1280px-Download_on_the_App_Store_Badge_FRCA_RGB_blk.svg.png" alt="Télécharger sur App Store">
             </a>
         </div>
     </div>
-
-<script>
-    function redirectToStore() {
-        const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-
-        // Détection iOS (iPhone, iPad, iPod)
-        if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
-            window.open('https://apps.apple.com/tn/app/speeddelivro/id6747889248', '_blank');
-        }
-        // Détection Android
-        else if (/android/i.test(userAgent)) {
-            window.open('https://play.google.com/store/apps/details?id=com.speed.delivro.buyer', '_blank');
-        }
-        // Par défaut (desktop ou autre) - rediriger vers le site web
-        else {
-            window.open('https://www.speeddelivro.com', '_blank');
-        }
-    }
-</script>
 </body>
 <style>
     .whatsapp-button {
