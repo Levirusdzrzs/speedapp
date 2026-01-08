@@ -26,8 +26,8 @@
             }
             // Détection Android
             else if (/android/i.test(userAgent)) {
-                // Intent URL pour Android - ouvre l'app si installée, sinon va au Play Store
-                const intentUrl = 'intent://speeddelivro#Intent;scheme=speeddelivro;package=com.speed.delivro.buyer;S.browser_fallback_url=https://play.google.com/store/apps/details?id=com.speed.delivro.buyer;end';
+                // Intent URL pour Android - ouvre l'app si installée en ciblant l'activité Splash
+                const intentUrl = 'intent://launch#Intent;scheme=speeddelivro;package=com.speed.delivro.buyer;component=com.speed.delivro.buyer/com.speed.delivro.app.ui.activities.authenticate.SplashActivityParent;S.browser_fallback_url=https://play.google.com/store/apps/details?id=com.speed.delivro.buyer;end';
 
                 window.location.replace(intentUrl);
             }
