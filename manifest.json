@@ -1,8 +1,8 @@
 {
-  "name": "SpeedDelivro Admin",
-  "short_name": "SpeedAdmin",
-  "start_url": "./admin-order.html",
-  "display": "browser",
+  "name": "Speed Admin",
+  "short_name": "Admin",
+  "start_url": "launcher.html",
+  "display": "standalone",
   "background_color": "#f0f2f5",
   "theme_color": "#1877f2",
   "icons": [
