@@ -40,7 +40,7 @@
             const pass = document.getElementById('password').value;
             const hash = await sha256(pass);
 
-            if (user === 'admin' && hash === TARGET_HASH) {
+            if (user === 'sami' && hash === TARGET_HASH) {
                 localStorage.setItem('admin_auth', 'true');
                 localStorage.setItem('admin_login_time', Date.now());
                 window.location.href = 'admin-order.html';
