@@ -24,6 +24,9 @@
         </form>
     </div>
     <script>
+        // CONFIGURATION UTILISATEUR
+        const VALID_USER = 'sami'; // <--- Modifié ici
+        
         // SHA-256 du mot de passe 'speed2026!'
         const TARGET_HASH = 'ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f';
         
@@ -40,9 +43,10 @@
             const pass = document.getElementById('password').value;
             const hash = await sha256(pass);
 
-            if (user === 'sami' && hash === TARGET_HASH) {
+            // Vérification
+            if (user === VALID_USER && hash === TARGET_HASH) {
                 localStorage.setItem('admin_auth', 'true');
-                localStorage.setItem('admin_login_time', Date.now());
+                localStorage.setItem('admin_user', user); // On stocke le nom
                 window.location.href = 'admin-order.html';
             } else {
                 document.getElementById('error').style.display = 'block';
