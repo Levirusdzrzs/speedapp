@@ -5,31 +5,73 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Connexion Admin</title>
     <style>
-        body { font-family: sans-serif; background: #f0f2f5; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-        .card { background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); width: 90%; max-width: 350px; }
-        input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-        button { width: 100%; padding: 10px; background: #1877f2; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; }
+        body { font-family: -apple-system, sans-serif; background: #f0f2f5; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        .card { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 90%; max-width: 350px; }
+        .input-group { position: relative; margin: 15px 0; }
+        input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 16px; }
+        button { width: 100%; padding: 12px; background: #1877f2; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold; margin-top: 10px; }
         button:hover { background: #166fe5; }
-        .error { color: red; font-size: 14px; display: none; margin-bottom: 10px; }
+        .error { color: #dc2626; font-size: 14px; display: none; margin-bottom: 15px; background: #fee2e2; padding: 10px; border-radius: 4px; text-align: center; }
+        
+        /* Style pour l'oeil */
+        .toggle-password {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-size: 18px;
+            padding: 0;
+            color: #666;
+            margin: 0;
+            width: auto;
+        }
+        .toggle-password:hover { background: none; color: #333; }
     </style>
 </head>
 <body>
     <div class="card">
-        <h2 style="text-align: center; margin-bottom: 20px;">SpeedDelivro Admin</h2>
+        <h2 style="text-align: center; margin-bottom: 20px; color: #333;">SpeedDelivro Admin</h2>
+        
         <div id="error" class="error">Identifiants incorrects</div>
+        
         <form id="loginForm">
-            <input type="text" id="username" placeholder="Utilisateur" required>
-            <input type="password" id="password" placeholder="Mot de passe" required>
+            <!-- Username avec autocomplete pour sauvegarde navigateur -->
+            <div class="input-group">
+                <input type="text" id="username" name="username" placeholder="Utilisateur" required autocomplete="username" value="sami">
+            </div>
+            
+            <!-- Password avec bouton oeil -->
+            <div class="input-group">
+                <input type="password" id="password" name="password" placeholder="Mot de passe" required autocomplete="current-password">
+                <span type="button" class="toggle-password" onclick="togglePassword()">👁️</span>
+            </div>
+            
             <button type="submit">Se connecter</button>
         </form>
     </div>
+
     <script>
-        // CONFIGURATION UTILISATEUR
-        const VALID_USER = 'sami'; // <--- Modifié ici
-        
-        // SHA-256 du mot de passe 'speed2026!'
-        const TARGET_HASH = 'ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f';
-        
+        // CONFIGURATION
+        const VALID_USER = 'sami';
+        const TARGET_HASH = 'ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f'; // speed2026!
+
+        // Fonction Toggle Password (Oeil)
+        function togglePassword() {
+            const input = document.getElementById('password');
+            const icon = document.querySelector('.toggle-password');
+            if (input.type === "password") {
+                input.type = "text";
+                icon.textContent = "🙈"; // Singe qui cache ses yeux
+            } else {
+                input.type = "password";
+                icon.textContent = "👁️"; // Oeil
+            }
+        }
+
+        // Hachage
         async function sha256(message) {
             const msgBuffer = new TextEncoder().encode(message);
             const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
@@ -37,19 +79,41 @@
             return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
         }
 
+        // Soumission
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const user = document.getElementById('username').value;
+            const user = document.getElementById('username').value.trim(); // Trim enlève les espaces accidentels
             const pass = document.getElementById('password').value;
-            const hash = await sha256(pass);
+            const errorDiv = document.getElementById('error');
+            
+            errorDiv.style.display = 'none';
 
-            // Vérification
-            if (user === VALID_USER && hash === TARGET_HASH) {
-                localStorage.setItem('admin_auth', 'true');
-                localStorage.setItem('admin_user', user); // On stocke le nom
-                window.location.href = 'admin-order.html';
-            } else {
-                document.getElementById('error').style.display = 'block';
+            try {
+                const hash = await sha256(pass);
+                
+                // Debug console (F12) pour vérifier ce qui se passe
+                console.log("Tentative connexion:", user);
+                console.log("Hash calculé:", hash);
+                console.log("Hash attendu:", TARGET_HASH);
+
+                if (user.toLowerCase() === VALID_USER && hash === TARGET_HASH) {
+                    // Succès
+                    localStorage.setItem('admin_auth', 'true');
+                    localStorage.setItem('admin_user', user);
+                    window.location.href = 'admin-order.html';
+                } else {
+                    // Échec
+                    errorDiv.style.display = 'block';
+                    // Effet de tremblement
+                    const card = document.querySelector('.card');
+                    card.style.transform = 'translateX(10px)';
+                    setTimeout(() => card.style.transform = 'translateX(0)', 100);
+                    setTimeout(() => card.style.transform = 'translateX(-10px)', 200);
+                    setTimeout(() => card.style.transform = 'translateX(0)', 300);
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Erreur de sécurité navigateur");
             }
         });
     </script>
