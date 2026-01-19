@@ -5,18 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Connexion Admin</title>
     
-    <!-- Liens pour l'application mobile (Android & iOS) -->
+    <!-- Liens pour l'installation Mobile -->
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1532/1532759.png">
-
-    <!-- AUTO-REDIRECT : Si déjà connecté, on fonce vers le formulaire -->
-    <script>
-        if (localStorage.getItem('admin_auth') === 'true') {
-            window.location.replace('admin-order.html');
-        }
-    </script>
 
     <style>
         body { font-family: -apple-system, sans-serif; background: #f0f2f5; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
@@ -27,17 +20,8 @@
         /* Bouton Oeil */
         .password-wrapper { position: relative; width: 100%; }
         .toggle-btn {
-            position: absolute;
-            right: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 20px;
-            padding: 0;
-            color: #666;
-            z-index: 5;
+            position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+            background: none; border: none; cursor: pointer; font-size: 20px; padding: 0; color: #666; z-index: 5;
         }
 
         button.submit-btn { width: 100%; padding: 12px; background: #1877f2; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold; margin-top: 10px; }
@@ -65,17 +49,22 @@
             
             <button type="submit" class="submit-btn" id="btnSubmit">Se connecter</button>
         </form>
-        <div class="version">v4.0 - Secure SHA256</div>
+        <div class="version">v5.0 - Universal Compatible</div>
     </div>
 
     <script>
-        // --- CONFIGURATION SÉCURISÉE ---
-        const USER = "sami";
-        // Ceci est le hash SHA-256 de "speed2026!"
-        // Même si on le voit, on ne peut pas deviner le mot de passe facilement.
-        const PASS_HASH = "ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f";
+        // --- AUTO-REDIRECT ---
+        // Vérification immédiate pour rediriger si déjà connecté
+        if (localStorage.getItem('admin_auth') === 'true') {
+            window.location.replace('admin-order.html');
+        }
 
-        // Fonction Oeil
+        // --- CONFIGURATION ENCODÉE (BASE64) ---
+        // User "sami"
+        const USER_TARGET = "c2FtaQ=="; 
+        // Pass "speed2026!"
+        const PASS_TARGET = "c3BlZWQyMDI2IQ=="; 
+
         function togglePassword() {
             const input = document.getElementById('password');
             const btn = document.querySelector('.toggle-btn');
@@ -88,47 +77,43 @@
             }
         }
 
-        // Fonction de Hachage (Cryptage)
-        async function sha256(message) {
-            const msgBuffer = new TextEncoder().encode(message);
-            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-            const hashArray = Array.from(new Uint8Array(hashBuffer));
-            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-        }
-
-        // Soumission
-        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault(); 
             
-            const btn = document.getElementById('btnSubmit');
+            // 1. Récupération
+            // .trim() est CRUCIAL : il enlève les espaces invisibles qu'un clavier mobile ajoute souvent à la fin
             const u = document.getElementById('username').value.trim();
-            const p = document.getElementById('password').value;
+            const p = document.getElementById('password').value.trim();
             const err = document.getElementById('error');
             
             err.style.display = 'none';
-            btn.disabled = true;
-            btn.textContent = "Vérification...";
 
             try {
-                // On crypte ce que l'utilisateur vient de taper
-                const hashCalculated = await sha256(p);
+                // 2. Encodage de ce que vous avez tapé
+                // btoa() est une fonction native universelle (PC & Mobile)
+                const u_encoded = btoa(u.toLowerCase()); // On met le user en minuscule avant d'encoder
+                const p_encoded = btoa(p);
 
-                // On compare les empreintes (Hash vs Hash)
-                if (u.toLowerCase() === USER && hashCalculated === PASS_HASH) {
+                // Debug dans la console (F12) pour comprendre si ça rate
+                console.log("User tapé:", u, "-> Encodé:", u_encoded);
+                console.log("Pass tapé:", p, "-> Encodé:", p_encoded);
+                console.log("Attendu  :", PASS_TARGET);
+
+                // 3. Comparaison
+                if (u_encoded === USER_TARGET && p_encoded === PASS_TARGET) {
                     localStorage.setItem('admin_auth', 'true');
                     localStorage.setItem('admin_user', u);
-                    
-                    // Redirection
                     window.location.replace('admin-order.html');
                 } else {
-                    throw new Error("Identifiants incorrects");
+                    err.innerHTML = "Identifiants incorrects.<br><small>Vérifiez majuscules et espaces.</small>";
+                    err.style.display = 'block';
+                    // On vide le mot de passe pour forcer à retaper
+                    document.getElementById('password').value = '';
                 }
             } catch (error) {
-                err.textContent = "Identifiants incorrects";
+                console.error(error);
+                err.textContent = "Erreur technique navigateur.";
                 err.style.display = 'block';
-                document.getElementById('password').value = '';
-                btn.disabled = false;
-                btn.textContent = "Se connecter";
             }
         });
     </script>
