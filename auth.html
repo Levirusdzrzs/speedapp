@@ -3,6 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <script>
+    // Si déjà connecté, on redirige IMMÉDIATEMENT vers le formulaire
+    // Pas de date d'expiration = Connexion infinie (tant qu'on ne vide pas le cache)
+    if (localStorage.getItem('admin_auth') === 'true') {
+        window.location.replace('admin-order.html');
+    }
+</script>
     <title>Connexion Admin</title>
     <link rel="manifest" href="manifest.json">
     <style>
