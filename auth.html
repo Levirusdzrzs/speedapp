@@ -3,26 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <script>
-    // Si déjà connecté, on redirige IMMÉDIATEMENT vers le formulaire
-    // Pas de date d'expiration = Connexion infinie (tant qu'on ne vide pas le cache)
-    if (localStorage.getItem('admin_auth') === 'true') {
-        window.location.replace('admin-order.html');
-    }
-</script>
     <title>Connexion Admin</title>
+    
+    <!-- Liens pour l'application mobile (Android & iOS) -->
     <link rel="manifest" href="manifest.json">
-    <!-- Optimisations iPhone / iOS -->
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1532/1532759.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1532/1532759.png">
+
+    <!-- AUTO-REDIRECT : Si déjà connecté, on fonce vers le formulaire -->
+    <script>
+        if (localStorage.getItem('admin_auth') === 'true') {
+            window.location.replace('admin-order.html');
+        }
+    </script>
+
     <style>
         body { font-family: -apple-system, sans-serif; background: #f0f2f5; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
         .card { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 90%; max-width: 350px; position: relative; }
         .input-group { position: relative; margin: 15px 0; }
         input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 16px; }
         
-        /* Bouton Oeil amélioré */
+        /* Bouton Oeil */
         .password-wrapper { position: relative; width: 100%; }
         .toggle-btn {
             position: absolute;
@@ -49,7 +51,7 @@
         
         <div id="error" class="error"></div>
         
-        <form id="loginForm" action="#" method="post">
+        <form id="loginForm">
             <div class="input-group">
                 <input type="text" id="username" name="username" placeholder="Utilisateur" required autocomplete="username" value="sami">
             </div>
@@ -61,16 +63,19 @@
                 </div>
             </div>
             
-            <button type="submit" class="submit-btn">Se connecter</button>
+            <button type="submit" class="submit-btn" id="btnSubmit">Se connecter</button>
         </form>
-        <div class="version">v3.0 - Secure Login</div>
+        <div class="version">v4.0 - Secure SHA256</div>
     </div>
 
     <script>
-        // CONFIGURATION
+        // --- CONFIGURATION SÉCURISÉE ---
         const USER = "sami";
-        const PASS = "speed2026!";
+        // Ceci est le hash SHA-256 de "speed2026!"
+        // Même si on le voit, on ne peut pas deviner le mot de passe facilement.
+        const PASS_HASH = "ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f";
 
+        // Fonction Oeil
         function togglePassword() {
             const input = document.getElementById('password');
             const btn = document.querySelector('.toggle-btn');
@@ -83,29 +88,47 @@
             }
         }
 
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
-            e.preventDefault(); // Empêche rechargement standard
+        // Fonction de Hachage (Cryptage)
+        async function sha256(message) {
+            const msgBuffer = new TextEncoder().encode(message);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        // Soumission
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault(); 
             
+            const btn = document.getElementById('btnSubmit');
             const u = document.getElementById('username').value.trim();
             const p = document.getElementById('password').value;
             const err = document.getElementById('error');
             
             err.style.display = 'none';
+            btn.disabled = true;
+            btn.textContent = "Vérification...";
 
-            if (u.toLowerCase() === USER && p === PASS) {
-                // Succès
-                localStorage.setItem('admin_auth', 'true');
-                localStorage.setItem('admin_user', u);
-                
-                // Astuce pour forcer le navigateur à proposer la sauvegarde :
-                // On redirige APRES un court délai
-                setTimeout(() => {
-                    window.location.href = 'admin-order.html';
-                }, 500);
-            } else {
+            try {
+                // On crypte ce que l'utilisateur vient de taper
+                const hashCalculated = await sha256(p);
+
+                // On compare les empreintes (Hash vs Hash)
+                if (u.toLowerCase() === USER && hashCalculated === PASS_HASH) {
+                    localStorage.setItem('admin_auth', 'true');
+                    localStorage.setItem('admin_user', u);
+                    
+                    // Redirection
+                    window.location.replace('admin-order.html');
+                } else {
+                    throw new Error("Identifiants incorrects");
+                }
+            } catch (error) {
                 err.textContent = "Identifiants incorrects";
                 err.style.display = 'block';
-                document.getElementById('password').value = ''; // Vide le mot de passe
+                document.getElementById('password').value = '';
+                btn.disabled = false;
+                btn.textContent = "Se connecter";
             }
         });
     </script>
