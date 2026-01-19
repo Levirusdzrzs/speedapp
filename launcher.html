@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SpeedAdmin Launcher</title>
+    <!-- On lie le manifeste ici pour qu'Android le reconnaisse -->
+    <link rel="manifest" href="manifest.json">
+    <style>
+        body { background-color: #f0f2f5; } /* Couleur de fond pour éviter écran blanc aveuglant */
+    </style>
+</head>
+<body>
+    <script>
+        // LOGIQUE DE DÉMARRAGE INSTANTANÉ
+        // On vérifie immédiatement le stockage local
+        const isAuth = localStorage.getItem('admin_auth') === 'true';
+        
+        if (isAuth) {
+            // Si connecté, on remplace l'URL actuelle par la commande
+            // .replace() est plus rapide que .href et ne garde pas l'historique
+            window.location.replace('admin-order.html');
+        } else {
+            // Sinon, direction login
+            window.location.replace('auth.html');
+        }
+    </script>
+</body>
+</html>
