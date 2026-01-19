@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Connexion Admin</title>
+    <title>Connexion Admin v2</title>
     <style>
         body { font-family: -apple-system, sans-serif; background: #f0f2f5; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
         .card { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 90%; max-width: 350px; }
@@ -12,6 +12,7 @@
         button { width: 100%; padding: 12px; background: #1877f2; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold; margin-top: 10px; }
         button:hover { background: #166fe5; }
         .error { color: #dc2626; font-size: 14px; display: none; margin-bottom: 15px; background: #fee2e2; padding: 10px; border-radius: 4px; text-align: center; }
+        .version { text-align: center; color: #999; font-size: 11px; margin-top: 20px; }
         
         /* Style pour l'oeil */
         .toggle-password {
@@ -27,23 +28,23 @@
             color: #666;
             margin: 0;
             width: auto;
+            z-index: 10;
         }
-        .toggle-password:hover { background: none; color: #333; }
     </style>
 </head>
 <body>
     <div class="card">
         <h2 style="text-align: center; margin-bottom: 20px; color: #333;">SpeedDelivro Admin</h2>
         
-        <div id="error" class="error">Identifiants incorrects</div>
+        <div id="error" class="error"></div>
         
         <form id="loginForm">
-            <!-- Username avec autocomplete pour sauvegarde navigateur -->
+            <!-- Username -->
             <div class="input-group">
                 <input type="text" id="username" name="username" placeholder="Utilisateur" required autocomplete="username" value="sami">
             </div>
             
-            <!-- Password avec bouton oeil -->
+            <!-- Password -->
             <div class="input-group">
                 <input type="password" id="password" name="password" placeholder="Mot de passe" required autocomplete="current-password">
                 <span type="button" class="toggle-password" onclick="togglePassword()">👁️</span>
@@ -51,69 +52,57 @@
             
             <button type="submit">Se connecter</button>
         </form>
+        <div class="version">Version 2.0 (Mode Direct)</div>
     </div>
 
     <script>
-        // CONFIGURATION
-        const VALID_USER = 'sami';
-        const TARGET_HASH = 'ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f'; // speed2026!
+        // --- CONFIGURATION SIMPLE ---
+        const CORRECT_USER = "sami";
+        const CORRECT_PASS = "speed2026!";
 
-        // Fonction Toggle Password (Oeil)
+        // Fonction Oeil
         function togglePassword() {
             const input = document.getElementById('password');
             const icon = document.querySelector('.toggle-password');
             if (input.type === "password") {
                 input.type = "text";
-                icon.textContent = "🙈"; // Singe qui cache ses yeux
+                icon.textContent = "🙈";
             } else {
                 input.type = "password";
-                icon.textContent = "👁️"; // Oeil
+                icon.textContent = "👁️";
             }
         }
 
-        // Hachage
-        async function sha256(message) {
-            const msgBuffer = new TextEncoder().encode(message);
-            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-            const hashArray = Array.from(new Uint8Array(hashBuffer));
-            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-        }
-
         // Soumission
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            const user = document.getElementById('username').value.trim(); // Trim enlève les espaces accidentels
+            
+            // Récupération des valeurs brutes (sans espaces autour)
+            const user = document.getElementById('username').value.trim();
             const pass = document.getElementById('password').value;
             const errorDiv = document.getElementById('error');
             
             errorDiv.style.display = 'none';
 
-            try {
-                const hash = await sha256(pass);
-                
-                // Debug console (F12) pour vérifier ce qui se passe
-                console.log("Tentative connexion:", user);
-                console.log("Hash calculé:", hash);
-                console.log("Hash attendu:", TARGET_HASH);
+            // Debug dans la console
+            console.log("User tapé:", user);
+            console.log("Pass tapé:", pass);
 
-                if (user.toLowerCase() === VALID_USER && hash === TARGET_HASH) {
-                    // Succès
-                    localStorage.setItem('admin_auth', 'true');
-                    localStorage.setItem('admin_user', user);
-                    window.location.href = 'admin-order.html';
-                } else {
-                    // Échec
-                    errorDiv.style.display = 'block';
-                    // Effet de tremblement
-                    const card = document.querySelector('.card');
-                    card.style.transform = 'translateX(10px)';
-                    setTimeout(() => card.style.transform = 'translateX(0)', 100);
-                    setTimeout(() => card.style.transform = 'translateX(-10px)', 200);
-                    setTimeout(() => card.style.transform = 'translateX(0)', 300);
-                }
-            } catch (err) {
-                console.error(err);
-                alert("Erreur de sécurité navigateur");
+            // Vérification directe (Sensible à la casse pour le mot de passe)
+            // On met le user en minuscule pour être sympa
+            if (user.toLowerCase() === CORRECT_USER && pass === CORRECT_PASS) {
+                // Succès
+                localStorage.setItem('admin_auth', 'true');
+                localStorage.setItem('admin_user', user);
+                window.location.href = 'admin-order.html';
+            } else {
+                // Échec avec détails pour toi
+                let msg = "Identifiants incorrects.";
+                if (user.toLowerCase() !== CORRECT_USER) msg += " (Nom erroné)";
+                else if (pass !== CORRECT_PASS) msg += " (Mot de passe erroné)";
+                
+                errorDiv.textContent = msg;
+                errorDiv.style.display = 'block';
             }
         });
     </script>
