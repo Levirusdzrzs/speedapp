@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Nouvelle Commande</title>
+    <!-- Google Maps (Ta clé API est incluse) -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAmUGJ1amdxeUbL_E_A-KsSZqokqyguCU8&libraries=places"></script>
+    <style>
+        body { font-family: -apple-system, sans-serif; margin: 0; padding: 20px; background: #f5f5f5; padding-bottom: 80px; }
+        .container { max-width: 600px; margin: 0 auto; }
+        .card { background: white; border-radius: 12px; padding: 20px; margin-bottom: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        h3 { margin: 0 0 15px 0; font-size: 16px; color: #333; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        label { display: block; margin-bottom: 5px; font-weight: 500; font-size: 14px; color: #555; }
+        input, select, textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; box-sizing: border-box; margin-bottom: 15px; }
+        .btn-submit { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 500px; background: #2563eb; color: white; border: none; padding: 16px; border-radius: 12px; font-size: 18px; font-weight: bold; box-shadow: 0 4px 12px rgba(37,99,235,0.3); cursor: pointer; }
+        .btn-submit:disabled { background: #ccc; }
+        .total-box { background: #eefff0; padding: 15px; border-radius: 8px; margin-top: 10px; }
+        .row { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 14px; }
+        .total { font-weight: bold; font-size: 18px; color: #059669; border-top: 1px solid #ccc; padding-top: 5px; margin-top: 5px; }
+        .logout { text-align: right; margin-bottom: 10px; }
+        .logout a { color: #dc2626; text-decoration: none; font-size: 14px; font-weight: 500; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logout"><a href="#" onclick="logout()">Se déconnecter</a></div>
+        
+        <form id="orderForm">
+            <!-- Restaurant -->
+            <div class="card">
+                <h3>🏪 Restaurant</h3>
+                <label>Choisir le restaurant</label>
+                <select id="restaurant_id" name="restaurant_id" required>
+                    <option value="">Chargement...</option>
+                </select>
+            </div>
+
+            <!-- Client -->
+            <div class="card">
+                <h3>👤 Client</h3>
+                <label>Nom</label>
+                <input type="text" name="customer_name" required placeholder="Nom du client">
+                <label>Téléphone (8 chiffres)</label>
+                <input type="tel" name="customer_phone" required pattern="[0-9]{8}" placeholder="Ex: 50123456">
+                <label>Adresse (Zarzis)</label>
+                <input type="text" id="delivery_address" name="delivery_address" required placeholder="Rechercher adresse...">
+                <input type="hidden" id="lat" name="lat">
+                <input type="hidden" id="lng" name="lng">
+            </div>
+
+            <!-- Articles -->
+            <div class="card">
+                <h3>📝 Commande</h3>
+                <label>Description</label>
+                <textarea name="items_description" required placeholder="Ex: 2 Pizza + 1 Coca" rows="3"></textarea>
+                <label>Notes</label>
+                <textarea name="notes" placeholder="Ex: Sans oignon..." rows="2"></textarea>
+            </div>
+
+            <!-- Paiement -->
+            <div class="card">
+                <h3>💰 Paiement</h3>
+                <label>Montant Articles (TND)</label>
+                <input type="number" id="order_amount" name="order_amount" step="0.1" required placeholder="0.00">
+                <label>Frais Livraison (TND)</label>
+                <input type="number" id="delivery_fee" name="delivery_fee" step="0.1" value="3.0" required>
+                
+                <div class="total-box">
+                    <div class="row"><span>Articles:</span><span id="txtAmount">0.00</span></div>
+                    <div class="row"><span>Livraison:</span><span id="txtDelivery">3.00</span></div>
+                    <div class="row"><span>Service (5%):</span><span id="txtService">0.00</span></div>
+                    <div class="row total"><span>TOTAL:</span><span id="txtTotal">3.00 TND</span></div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-submit" id="btnSubmit">Créer Commande</button>
+        </form>
+    </div>
+
+    <script>
+        // --- AUTHENTICATION ---
+        if (!localStorage.getItem('admin_auth')) window.location.href = 'auth.html';
+        function logout() { localStorage.removeItem('admin_auth'); window.location.href = 'auth.html'; }
+
+        // --- API URLS ---
+        const URL_RESTOS = 'https://www.speeddelivro.com/api-restaurants-list.php';
+        const URL_ORDER = 'https://www.speeddelivro.com/process-admin-order.php';
+
+        // --- CHARGEMENT RESTOS ---
+        fetch(URL_RESTOS)
+            .then(r => r.json())
+            .then(data => {
+                const sel = document.getElementById('restaurant_id');
+                sel.innerHTML = '<option value="">-- Choisir --</option>';
+                if(data.success && data.restaurants) {
+                    data.restaurants.forEach(r => {
+                        const opt = document.createElement('option');
+                        opt.value = r.restaurant_id;
+                        opt.text = r.restaurant_name;
+                        sel.appendChild(opt);
+                    });
+                } else {
+                    alert("Erreur chargement restaurants: " + (data.error || 'Inconnu'));
+                }
+            })
+            .catch(e => alert("Erreur réseau API: " + e));
+
+        // --- GOOGLE MAPS ---
+        function initAutocomplete() {
+            const input = document.getElementById('delivery_address');
+            const autocomplete = new google.maps.places.Autocomplete(input, {
+                componentRestrictions: { country: 'tn' },
+                bounds: new google.maps.LatLngBounds(
+                    new google.maps.LatLng(33.0, 10.0), new google.maps.LatLng(34.5, 11.5)
+                ),
+                strictBounds: true
+            });
+            autocomplete.addListener('place_changed', function() {
+                const place = autocomplete.getPlace();
+                if (place.geometry) {
+                    document.getElementById('lat').value = place.geometry.location.lat();
+                    document.getElementById('lng').value = place.geometry.location.lng();
+                }
+            });
+        }
+        initAutocomplete();
+
+        // --- CALCULS ---
+        function calc() {
+            const amt = parseFloat(document.getElementById('order_amount').value) || 0;
+            const del = parseFloat(document.getElementById('delivery_fee').value) || 0;
+            const srv = Math.min(amt * 0.05, 2.00);
+            const tot = amt + del + srv;
+            
+            document.getElementById('txtAmount').innerText = amt.toFixed(2);
+            document.getElementById('txtDelivery').innerText = del.toFixed(2);
+            document.getElementById('txtService').innerText = srv.toFixed(2);
+            document.getElementById('txtTotal').innerText = tot.toFixed(2) + " TND";
+        }
+        document.getElementById('order_amount').addEventListener('input', calc);
+        document.getElementById('delivery_fee').addEventListener('input', calc);
+
+        // --- SOUMISSION ---
+        document.getElementById('orderForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('btnSubmit');
+            const data = new FormData(e.target);
+            
+            // Validation simple
+            if(!data.get('lat')) { alert("Veuillez sélectionner une adresse valide dans la liste !"); return; }
+
+            btn.disabled = true;
+            btn.textContent = "Envoi...";
+
+            try {
+                const res = await fetch(URL_ORDER, {
+                    method: 'POST',
+                    body: new URLSearchParams(data) // Envoi comme formulaire standard
+                });
+                const json = await res.json();
+                
+                if(json.status === 1) {
+                    alert("✅ Commande créée : " + json.order_id);
+                    window.location.reload();
+                } else {
+                    alert("❌ Erreur : " + json.msg);
+                    btn.disabled = false;
+                    btn.textContent = "Créer Commande";
+                }
+            } catch (err) {
+                alert("❌ Erreur Réseau : " + err);
+                btn.disabled = false;
+                btn.textContent = "Créer Commande";
+            }
+        });
+    </script>
+</body>
+</html>
