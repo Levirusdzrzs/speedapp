@@ -3,33 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Connexion Admin v2</title>
+    <title>Connexion Admin</title>
     <style>
         body { font-family: -apple-system, sans-serif; background: #f0f2f5; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-        .card { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 90%; max-width: 350px; }
+        .card { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 90%; max-width: 350px; position: relative; }
         .input-group { position: relative; margin: 15px 0; }
         input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 16px; }
-        button { width: 100%; padding: 12px; background: #1877f2; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold; margin-top: 10px; }
-        button:hover { background: #166fe5; }
-        .error { color: #dc2626; font-size: 14px; display: none; margin-bottom: 15px; background: #fee2e2; padding: 10px; border-radius: 4px; text-align: center; }
-        .version { text-align: center; color: #999; font-size: 11px; margin-top: 20px; }
         
-        /* Style pour l'oeil */
-        .toggle-password {
+        /* Bouton Oeil amélioré */
+        .password-wrapper { position: relative; width: 100%; }
+        .toggle-btn {
             position: absolute;
-            right: 10px;
+            right: 12px;
             top: 50%;
             transform: translateY(-50%);
-            cursor: pointer;
             background: none;
             border: none;
-            font-size: 18px;
+            cursor: pointer;
+            font-size: 20px;
             padding: 0;
             color: #666;
-            margin: 0;
-            width: auto;
-            z-index: 10;
+            z-index: 5;
         }
+
+        button.submit-btn { width: 100%; padding: 12px; background: #1877f2; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold; margin-top: 10px; }
+        .error { color: #dc2626; background: #fee2e2; padding: 10px; border-radius: 4px; text-align: center; margin-bottom: 15px; display: none; }
+        .version { text-align: center; color: #ccc; font-size: 10px; margin-top: 20px; }
     </style>
 </head>
 <body>
@@ -38,71 +37,63 @@
         
         <div id="error" class="error"></div>
         
-        <form id="loginForm">
-            <!-- Username -->
+        <form id="loginForm" action="#" method="post">
             <div class="input-group">
                 <input type="text" id="username" name="username" placeholder="Utilisateur" required autocomplete="username" value="sami">
             </div>
             
-            <!-- Password -->
             <div class="input-group">
-                <input type="password" id="password" name="password" placeholder="Mot de passe" required autocomplete="current-password">
-                <span type="button" class="toggle-password" onclick="togglePassword()">👁️</span>
+                <div class="password-wrapper">
+                    <input type="password" id="password" name="password" placeholder="Mot de passe" required autocomplete="current-password">
+                    <button type="button" class="toggle-btn" onclick="togglePassword()">👁️</button>
+                </div>
             </div>
             
-            <button type="submit">Se connecter</button>
+            <button type="submit" class="submit-btn">Se connecter</button>
         </form>
-        <div class="version">Version 2.0 (Mode Direct)</div>
+        <div class="version">v3.0 - Secure Login</div>
     </div>
 
     <script>
-        // --- CONFIGURATION SIMPLE ---
-        const CORRECT_USER = "sami";
-        const CORRECT_PASS = "speed2026!";
+        // CONFIGURATION
+        const USER = "sami";
+        const PASS = "speed2026!";
 
-        // Fonction Oeil
         function togglePassword() {
             const input = document.getElementById('password');
-            const icon = document.querySelector('.toggle-password');
+            const btn = document.querySelector('.toggle-btn');
             if (input.type === "password") {
                 input.type = "text";
-                icon.textContent = "🙈";
+                btn.textContent = "🙈";
             } else {
                 input.type = "password";
-                icon.textContent = "👁️";
+                btn.textContent = "👁️";
             }
         }
 
-        // Soumission
         document.getElementById('loginForm').addEventListener('submit', function(e) {
-            e.preventDefault();
+            e.preventDefault(); // Empêche rechargement standard
             
-            // Récupération des valeurs brutes (sans espaces autour)
-            const user = document.getElementById('username').value.trim();
-            const pass = document.getElementById('password').value;
-            const errorDiv = document.getElementById('error');
+            const u = document.getElementById('username').value.trim();
+            const p = document.getElementById('password').value;
+            const err = document.getElementById('error');
             
-            errorDiv.style.display = 'none';
+            err.style.display = 'none';
 
-            // Debug dans la console
-            console.log("User tapé:", user);
-            console.log("Pass tapé:", pass);
-
-            // Vérification directe (Sensible à la casse pour le mot de passe)
-            // On met le user en minuscule pour être sympa
-            if (user.toLowerCase() === CORRECT_USER && pass === CORRECT_PASS) {
+            if (u.toLowerCase() === USER && p === PASS) {
                 // Succès
                 localStorage.setItem('admin_auth', 'true');
-                localStorage.setItem('admin_user', user);
-                window.location.href = 'admin-order.html';
-            } else {
-                // Échec avec détails pour toi
-                let msg = "Identifiants incorrects.";
-                if (user.toLowerCase() !== CORRECT_USER) msg += " (Nom erroné)";
-                else if (pass !== CORRECT_PASS) msg += " (Mot de passe erroné)";
+                localStorage.setItem('admin_user', u);
                 
-                errorDiv.textContent = msg;
-                errorDiv.style.display = 'block';
+                // Astuce pour forcer le navigateur à proposer la sauvegarde :
+                // On redirige APRES un court délai
+                setTimeout(() => {
+                    window.location.href = 'admin-order.html';
+                }, 500);
+            } else {
+                err.textContent = "Identifiants incorrects";
+                err.style.display = 'block';
+                document.getElementById('password').value = ''; // Vide le mot de passe
             }
         });
     </script>
