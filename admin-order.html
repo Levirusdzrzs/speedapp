@@ -47,8 +47,7 @@
                 <label>Nom</label>
                 <input type="text" name="customer_name" required placeholder="Nom du client">
                 <label>Téléphone (8 chiffres)</label>
-                <input type="tel" name="customer_phone" required pattern="[0-9]{8}" placeholder="Ex: 50123456">
-                <label>Adresse (Zarzis)</label>
+<input type="tel" id="customer_phone" name="customer_phone" required maxlength="8" placeholder="Ex: 50123456" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 8);">                <label>Adresse (Zarzis)</label>
                 <input type="text" id="delivery_address" name="delivery_address" required placeholder="Rechercher adresse...">
                 <input type="hidden" id="lat" name="lat">
                 <input type="hidden" id="lng" name="lng">
