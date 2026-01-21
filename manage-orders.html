@@ -6,47 +6,46 @@
     <title>Gérer Commandes</title>
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     
     <style>
-        body { margin: 0; padding: 0; font-family: sans-serif; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        /* On bloque le scroll sur le corps de l'app */
+        body { margin: 0; padding: 0; font-family: sans-serif; height: 100vh; width: 100vw; overflow: hidden; background: #fff; }
         
-        /* Iframe qui prend tout l'écran */
+        /* L'IFRAME : On force sa hauteur à s'arrêter AVANT le menu */
         iframe {
-            flex: 1;
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
+            /* C'est la ligne MAGIQUE : Hauteur totale moins 60px */
+            height: calc(100% - 60px); 
             border: none;
-            background: #fff;
+            z-index: 1;
         }
 
-        /* Barre de Menu en bas */
+        /* LE MENU : Fixé en bas, par-dessus tout */
         .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
             height: 60px;
             background: white;
             box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            z-index: 1000;
+            display: flex; justify-content: space-around; align-items: center;
+            z-index: 9999; /* Très haut pour rester visible */
         }
         
-        .nav-item {
-            text-decoration: none;
-            color: #999;
-            text-align: center;
-            font-size: 12px;
-            flex: 1;
-        }
-        
-        .nav-item.active { color: #2563eb; font-weight: bold; }
-        .nav-icon { font-size: 24px; display: block; margin-bottom: 2px; }
+        .nav-item { text-decoration: none; color: #999; text-align: center; font-size: 11px; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; }
+        .nav-item.active { color: #2563eb; font-weight: bold; background-color: #f0f7ff; }
+        .nav-icon { font-size: 22px; margin-bottom: 2px; display: block; }
     </style>
 </head>
 <body>
 
-    <!-- L'intégration du Backend -->
-    <iframe src="https://www.speeddelivro.com/admin/orders/listing" title="Backend SpeedDelivro"></iframe>
+    <iframe src="https://www.speeddelivro.com/admin/orders/listing" title="Backend"></iframe>
 
-    <!-- Menu de Navigation -->
     <div class="bottom-nav">
         <a href="admin-order.html" class="nav-item">
             <span class="nav-icon">➕</span>Créer
