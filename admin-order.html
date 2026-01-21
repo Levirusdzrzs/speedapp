@@ -173,6 +173,16 @@ body { padding-bottom: 70px; } /* Espace pour le menu */
             const btn = document.getElementById('btnSubmit');
             const data = new FormData(e.target);
             
+            // --- AJOUT DE LA CLÉ DE SÉCURITÉ ICI ---
+            data.append('api_token', 'SPEED_SECURE_TOKEN_998877');
+            // ---------------------------------------
+
+            // Validation simple
+            if(!data.get('lat')) { alert("Veuillez sélectionner une adresse valide dans la liste !"); return; }
+
+            btn.disabled = true;
+            // ... la suite reste pareille ...
+            
             // Validation simple
             if(!data.get('lat')) { alert("Veuillez sélectionner une adresse valide dans la liste !"); return; }
 
