@@ -30,8 +30,25 @@ body { padding-bottom: 70px; } /* Espace pour le menu */
         h3 { margin: 0 0 15px 0; font-size: 16px; color: #333; border-bottom: 1px solid #eee; padding-bottom: 10px; }
         label { display: block; margin-bottom: 5px; font-weight: 500; font-size: 14px; color: #555; }
         input, select, textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; box-sizing: border-box; margin-bottom: 15px; }
-        .btn-submit { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 500px; background: #2563eb; color: white; border: none; padding: 16px; border-radius: 12px; font-size: 18px; font-weight: bold; box-shadow: 0 4px 12px rgba(37,99,235,0.3); cursor: pointer; }
-        .btn-submit:disabled { background: #ccc; }
+        .btn-submit {
+            width: 90%; /* Un peu plus large sur mobile */
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+            position: fixed;
+            bottom: 80px; /* <--- MODIFIÉ : 60px (Menu) + 20px (Marge) */
+            left: 50%;
+            transform: translateX(-50%);
+            max-width: 570px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            z-index: 900; /* Pour être sûr qu'il reste cliquable */
+        }
         .total-box { background: #eefff0; padding: 15px; border-radius: 8px; margin-top: 10px; }
         .row { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 14px; }
         .total { font-weight: bold; font-size: 18px; color: #059669; border-top: 1px solid #ccc; padding-top: 5px; margin-top: 5px; }
