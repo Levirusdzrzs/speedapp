@@ -212,36 +212,110 @@
         <div style="font-size: 30px;">🔔</div>
         <div><h4 style="margin: 0; color: #333; font-size: 16px;">Nouvelle Commande !</h4><p id="toastMsg" style="margin: 5px 0 0 0; color: #666; font-size: 14px;">...</p></div>
     </div>
-    <script>
-        if (Notification.permission !== "granted") Notification.requestPermission();
-        let lastKnownOrderId = localStorage.getItem('last_known_order') || '';
+    <!-- FICHIER AUDIO SILENCIEUX (Pour garder l'app éveillée) -->
+    <!-- Un son de 1h de silence qui tourne en boucle -->
+    <audio id="keepAliveSound" loop>
+        <source src="https://github.com/anars/blank-audio/raw/master/1-hour-of-silence.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="notifSound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
 
-        function showVisualAlert(msg) {
-            const toast = document.getElementById('customToast');
-            document.getElementById('toastMsg').innerHTML = msg;
-            toast.style.top = "20px";
-            if ("vibrate" in navigator) navigator.vibrate([500, 200, 500]);
-            document.getElementById('notifSound').play().catch(e=>{});
-            setTimeout(() => { toast.style.top = "-100px"; }, 8000);
+    <!-- BOUTON ACTIVATION MODE BACKGROUND -->
+    <div id="bgModeBtn" style="position: fixed; top: 20px; right: 20px; background: #333; color: white; padding: 8px 12px; border-radius: 20px; font-size: 11px; z-index: 9999; cursor: pointer; display: none;" onclick="enableBackgroundMode()">
+        💤 Mode Veille Désactivé
+    </div>
+
+    <script>
+        // --- 1. INSTALLATION SERVICE WORKER ---
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js')
+            .then(reg => console.log('Service Worker enregistré', reg))
+            .catch(err => console.log('Erreur SW', err));
         }
 
+        // --- 2. LOGIQUE KEEP ALIVE (Anti-Fermeture) ---
+        let isBackgroundMode = false;
+        function enableBackgroundMode() {
+            const audio = document.getElementById('keepAliveSound');
+            const btn = document.getElementById('bgModeBtn');
+            
+            if (!isBackgroundMode) {
+                audio.play(); // Lance le "faux" lecteur musique
+                btn.style.background = "#2ecc71"; // Vert
+                btn.innerHTML = "⚡ Mode Arrière-plan ACTIF";
+                isBackgroundMode = true;
+                alert("L'application est maintenant protégée contre la mise en veille. Vous pouvez changer d'application, ça sonnera !");
+            }
+        }
+
+        // --- 3. RADAR AMÉLIORÉ ---
+        if (Notification.permission !== "granted") Notification.requestPermission();
+        
+        // Affiche le bouton Background si besoin
+        if (Notification.permission === "granted") {
+            document.getElementById('bgModeBtn').style.display = "block";
+        }
+
+        let lastKnownOrderId = localStorage.getItem('last_known_order') || '';
+
         function checkNewOrders() {
-            fetch('https://www.speeddelivro.com/api-check-new-orders.php?nocache=' + Date.now())
+            // Anti-Cache violent + Timestamp
+            fetch('https://www.speeddelivro.com/api-check-new-orders.php?t=' + Date.now())
                 .then(r => r.json())
                 .then(data => {
                     if (data.success && data.latest_order) {
                         const newOrder = data.latest_order;
+                        
+                        // Init
                         if (!lastKnownOrderId) { lastKnownOrderId = newOrder.order_id; localStorage.setItem('last_known_order', lastKnownOrderId); return; }
+                        
+                        // NOUVELLE COMMANDE DÉTECTÉE
                         if (newOrder.order_id !== lastKnownOrderId) {
-                            const type = newOrder.order_is_admin_created == 1 ? "ADMIN 👨‍💼" : "CLIENT 📱";
-                            showVisualAlert(`Commande : <b>${newOrder.order_id}</b><br>Montant : <b>${newOrder.order_total_amount} TND</b><br>Source : ${type}`);
+                            
+                            const type = newOrder.order_is_admin_created == 1 ? "ADMIN" : "CLIENT";
+                            const amount = newOrder.order_total_amount;
+                            
+                            // A. Jouer le son fort
+                            const sound = document.getElementById('notifSound');
+                            sound.volume = 1.0;
+                            sound.play().catch(e => console.log("Erreur son:", e));
+
+                            // B. Notification Système via Service Worker (Marche mieux en background)
+                            if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+                                navigator.serviceWorker.controller.postMessage({
+                                    type: 'SHOW_NOTIFICATION',
+                                    title: `💰 Nouvelle Commande (${type})`,
+                                    options: {
+                                        body: `Montant : ${amount} TND\nTouchez pour ouvrir`,
+                                        icon: "https://cdn-icons-png.flaticon.com/512/1532/1532759.png",
+                                        vibrate: [500, 200, 500, 200, 500],
+                                        tag: 'new-order-' + newOrder.order_id,
+                                        renotify: true,
+                                        requireInteraction: true // Reste affiché tant qu'on ne clique pas
+                                    }
+                                });
+                            } else {
+                                // Fallback classique
+                                new Notification(`💰 Commande ${type}`, { body: `${amount} TND` });
+                            }
+
+                            // C. Mise à jour
                             lastKnownOrderId = newOrder.order_id;
                             localStorage.setItem('last_known_order', lastKnownOrderId);
                         }
                     }
-                });
+                })
+                .catch(e => console.log("Radar offline temporaire..."));
         }
+
+        // Radar très rapide
         setInterval(checkNewOrders, 5000);
+        
+        // Relance le radar si le navigateur le réveille
+        document.addEventListener("visibilitychange", () => {
+            if (!document.hidden) checkNewOrders();
+        });
     </script>
+</body>
+</html>
 </body>
 </html>
