@@ -2,32 +2,164 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SpeedAdmin Launcher</title>
-    <!-- On lie le manifeste ici pour qu'Android le reconnaisse -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Speed Admin</title>
+    
     <link rel="manifest" href="manifest.json">
-    <!-- Optimisations iPhone / iOS -->
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1532/1532759.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="https://app.speeddelivro.com/admin_icon.png">
+    
     <style>
-        body { background-color: #f0f2f5; } /* Couleur de fond pour éviter écran blanc aveuglant */
+        body { margin: 0; padding: 0; font-family: sans-serif; height: 100vh; width: 100vw; overflow: hidden; background: #333; }
+        
+        /* LA FENÊTRE DE CONTENU */
+        #contentFrame {
+            position: absolute; top: 0; left: 0; width: 100%;
+            height: calc(100% - 60px); /* Laisse la place au menu */
+            border: none; background: #f5f5f5;
+        }
+
+        /* LE MENU PERSISTANT */
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; width: 100%; height: 60px;
+            background: white; box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            display: flex; justify-content: space-around; align-items: center;
+            z-index: 9999;
+        }
+        .nav-item { text-decoration: none; color: #999; text-align: center; font-size: 11px; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; cursor: pointer; }
+        .nav-item.active { color: #2563eb; font-weight: bold; background-color: #f0f7ff; }
+        .nav-icon { font-size: 22px; margin-bottom: 2px; display: block; }
+
+        /* BOUTON MODE VEILLE */
+        #bgModeBtn {
+            position: fixed; top: 10px; right: 10px; 
+            background: rgba(0,0,0,0.6); color: white; 
+            padding: 5px 10px; border-radius: 15px; font-size: 10px; 
+            z-index: 10000; cursor: pointer; border: 1px solid white;
+        }
     </style>
 </head>
 <body>
+
+    <!-- Vérification Auth Immédiate -->
     <script>
-        // LOGIQUE DE DÉMARRAGE INSTANTANÉ
-        // On vérifie immédiatement le stockage local
-        const isAuth = localStorage.getItem('admin_auth') === 'true';
-        
-        if (isAuth) {
-            // Si connecté, on remplace l'URL actuelle par la commande
-            // .replace() est plus rapide que .href et ne garde pas l'historique
-            window.location.replace('admin-order.html');
-        } else {
-            // Sinon, direction login
+        if (localStorage.getItem('admin_auth') !== 'true') {
             window.location.replace('auth.html');
         }
+    </script>
+
+    <!-- IFRAME : Charge par défaut la page de commande -->
+    <iframe id="contentFrame" src="admin-order.html"></iframe>
+
+    <!-- BOUTON BACKGROUND -->
+    <div id="bgModeBtn" onclick="toggleBackgroundMode()">💤 Mode Veille Désactivé</div>
+
+    <!-- MENU DU BAS (Fixe) -->
+    <div class="bottom-nav">
+        <div class="nav-item active" onclick="loadPage('admin-order.html', this)">
+            <span class="nav-icon">➕</span>Créer
+        </div>
+        <div class="nav-item" onclick="loadPage('https://www.speeddelivro.com/admin/orders/listing', this)">
+            <span class="nav-icon">📋</span>Gérer
+        </div>
+        <div class="nav-item" onclick="loadPage('https://www.speeddelivro.com/admin/reports/drivers-map', this)">
+            <span class="nav-icon">🗺️</span>Carte
+        </div>
+    </div>
+
+    <!-- AUDIO & RADAR -->
+    <audio id="keepAliveSound" loop>
+        <source src="https://github.com/anars/blank-audio/raw/master/1-hour-of-silence.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="notifSound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
+
+    <!-- TOAST NOTIF -->
+    <div id="customToast" style="position: fixed; top: -100px; left: 5%; width: 90%; background: white; border-left: 5px solid #2563eb; box-shadow: 0 10px 25px rgba(0,0,0,0.3); border-radius: 8px; padding: 15px; z-index: 10001; transition: top 0.5s ease; display: flex; align-items: center; gap: 15px;">
+        <img src="https://app.speeddelivro.com/admin_icon.png" style="width: 40px; height: 40px; border-radius: 5px;">
+        <div><h4 style="margin: 0; color: #333; font-size: 16px;">Nouvelle Commande !</h4><p id="toastMsg" style="margin: 5px 0 0 0; color: #666; font-size: 14px;">...</p></div>
+    </div>
+
+    <script>
+        // --- 1. GESTION NAVIGATION ---
+        function loadPage(url, el) {
+            document.getElementById('contentFrame').src = url;
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            el.classList.add('active');
+        }
+
+        // --- 2. GESTION MODE ARRIERE PLAN ---
+        let isBackgroundMode = false;
+        function toggleBackgroundMode() {
+            const audio = document.getElementById('keepAliveSound');
+            const btn = document.getElementById('bgModeBtn');
+            
+            if (!isBackgroundMode) {
+                audio.play().then(() => {
+                    btn.style.background = "#2ecc71"; // Vert
+                    btn.innerHTML = "⚡ Mode Arrière-plan ACTIF";
+                    isBackgroundMode = true;
+                }).catch(e => alert("Cliquez n'importe où sur la page d'abord !"));
+            } else {
+                audio.pause();
+                btn.style.background = "rgba(0,0,0,0.6)";
+                btn.innerHTML = "💤 Mode Veille Désactivé";
+                isBackgroundMode = false;
+            }
+        }
+
+        // --- 3. RADAR INDESTRUCTIBLE ---
+        if (Notification.permission !== "granted") Notification.requestPermission();
+        
+        let lastKnownOrderId = localStorage.getItem('last_known_order') || '';
+        const CUSTOM_ICON = "https://app.speeddelivro.com/admin_icon.png";
+
+        function showVisualAlert(msg) {
+            const toast = document.getElementById('customToast');
+            document.getElementById('toastMsg').innerHTML = msg;
+            toast.style.top = "20px";
+            if ("vibrate" in navigator) navigator.vibrate([500, 200, 500]);
+            document.getElementById('notifSound').play().catch(e=>{});
+            setTimeout(() => { toast.style.top = "-100px"; }, 8000);
+        }
+
+        function checkNewOrders() {
+            fetch('https://www.speeddelivro.com/api-check-new-orders.php?nocache=' + Date.now())
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success && data.latest_order) {
+                        const newOrder = data.latest_order;
+                        if (!lastKnownOrderId) { lastKnownOrderId = newOrder.order_id; localStorage.setItem('last_known_order', lastKnownOrderId); return; }
+                        
+                        if (newOrder.order_id !== lastKnownOrderId) {
+                            const type = newOrder.order_is_admin_created == 1 ? "ADMIN" : "CLIENT";
+                            showVisualAlert(`Commande : <b>${newOrder.order_id}</b><br>Montant : <b>${newOrder.order_total_amount} TND</b>`);
+                            
+                            if (Notification.permission === "granted") {
+                                try {
+                                    new Notification(`💰 Commande ${type}`, {
+                                        body: `${newOrder.order_total_amount} TND`,
+                                        icon: CUSTOM_ICON,
+                                        requireInteraction: true
+                                    });
+                                } catch (e) {}
+                            }
+                            lastKnownOrderId = newOrder.order_id;
+                            localStorage.setItem('last_known_order', lastKnownOrderId);
+                        }
+                    }
+                })
+                .catch(e => console.log("Radar..."));
+        }
+
+        setInterval(checkNewOrders, 5000);
+        
+        // AUTO-RESTART
+        document.addEventListener("visibilitychange", () => {
+            if (!document.hidden && isBackgroundMode) {
+               document.getElementById('keepAliveSound').play().catch(e=>{});
+            }
+        });
     </script>
 </body>
 </html>
