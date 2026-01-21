@@ -7,43 +7,30 @@
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1532/1532759.png">
     
     <style>
-        /* On bloque le scroll sur le corps de l'app */
         body { margin: 0; padding: 0; font-family: sans-serif; height: 100vh; width: 100vw; overflow: hidden; background: #fff; }
         
-        /* L'IFRAME : On force sa hauteur à s'arrêter AVANT le menu */
         iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            /* C'est la ligne MAGIQUE : Hauteur totale moins 60px */
-            height: calc(100% - 60px); 
-            border: none;
-            z-index: 1;
+            position: absolute; top: 0; left: 0; width: 100%;
+            height: calc(100% - 60px); /* Laisse la place au menu */
+            border: none; z-index: 1;
         }
 
-        /* LE MENU : Fixé en bas, par-dessus tout */
         .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 60px;
-            background: white;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            position: fixed; bottom: 0; left: 0; width: 100%; height: 60px;
+            background: white; box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
             display: flex; justify-content: space-around; align-items: center;
-            z-index: 9999; /* Très haut pour rester visible */
+            z-index: 9999;
         }
-        
         .nav-item { text-decoration: none; color: #999; text-align: center; font-size: 11px; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; }
         .nav-item.active { color: #2563eb; font-weight: bold; background-color: #f0f7ff; }
         .nav-icon { font-size: 22px; margin-bottom: 2px; display: block; }
     </style>
 </head>
 <body>
-
+    <!-- L'IFRAME VERS TON BACKEND OFFICIEL -->
     <iframe src="https://www.speeddelivro.com/admin/orders/listing" title="Backend"></iframe>
 
     <div class="bottom-nav">
@@ -57,6 +44,5 @@
             <span class="nav-icon">🗺️</span>Carte
         </a>
     </div>
-
 </body>
 </html>
