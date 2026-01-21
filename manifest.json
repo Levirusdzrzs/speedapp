@@ -3,7 +3,7 @@
   "short_name": "Admin",
   "start_url": "launcher.html",
   "display": "standalone",
-  "background_color": "#f0f2f5",
+  "background_color": "#333333",
   "theme_color": "#1877f2",
   "icons": [
     {
