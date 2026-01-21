@@ -14,46 +14,7 @@
     <!-- Google Maps -->
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAmUGJ1amdxeUbL_E_A-KsSZqokqyguCU8&libraries=places"></script>
     
-    <style>
-        body { font-family: -apple-system, sans-serif; margin: 0; padding: 20px; background: #f5f5f5; padding-bottom: 90px; } /* Marge pour le menu */
-        .container { max-width: 600px; margin: 0 auto; }
-        .card { background: white; border-radius: 12px; padding: 20px; margin-bottom: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        h3 { margin: 0 0 15px 0; font-size: 16px; color: #333; border-bottom: 1px solid #eee; padding-bottom: 10px; }
-        label { display: block; margin-bottom: 5px; font-weight: 500; font-size: 14px; color: #555; }
-        input, select, textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; box-sizing: border-box; margin-bottom: 15px; }
-        
-        /* Bouton Créer (Au-dessus du menu) */
-        .btn-submit {
-            width: 90%; 
-            padding: 16px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white; border: none; border-radius: 10px;
-            font-size: 16px; font-weight: 600; cursor: pointer;
-            position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
-            max-width: 570px; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-            z-index: 900;
-        }
-        .btn-submit:disabled { background: #ccc; cursor: not-allowed; box-shadow: none; }
-        
-        .total-box { background: #eefff0; padding: 15px; border-radius: 8px; margin-top: 10px; }
-        .row { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 14px; }
-        .total { font-weight: bold; font-size: 18px; color: #059669; border-top: 1px solid #ccc; padding-top: 5px; margin-top: 5px; }
-        
-        .logout { text-align: right; margin-bottom: 10px; }
-        .logout a { color: #dc2626; text-decoration: none; font-size: 14px; font-weight: 500; }
-
-        /* MENU DU BAS */
-        .bottom-nav {
-            position: fixed; bottom: 0; left: 0; right: 0;
-            height: 60px; background: white;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
-            display: flex; justify-content: space-around; align-items: center;
-            z-index: 1000;
-        }
-        .nav-item { text-decoration: none; color: #999; text-align: center; font-size: 11px; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; }
-        .nav-item.active { color: #2563eb; font-weight: bold; background-color: #f0f7ff; }
-        .nav-icon { font-size: 22px; margin-bottom: 2px; display: block; }
-    </style>
+    
 </head>
 <body>
     <div class="container">
@@ -109,20 +70,7 @@
         </form>
     </div>
 
-    <!-- MENU DU BAS -->
-    <div class="bottom-nav">
-        <a href="#" class="nav-item active">
-            <span class="nav-icon">➕</span>Créer
-        </a>
-        <a href="manage-orders.html" class="nav-item">
-            <span class="nav-icon">📋</span>Gérer
-        </a>
-        <a href="drivers-map.html" class="nav-item">
-            <span class="nav-icon">🗺️</span>Carte
-        </a>
-    </div>
-
-    <!-- LOGIQUE JAVASCRIPT -->
+       <!-- LOGIQUE JAVASCRIPT -->
     <script>
         // --- AUTH ---
         if (!localStorage.getItem('admin_auth')) window.location.href = 'auth.html';
@@ -206,115 +154,7 @@
         });
     </script>
 
-    <!-- SYSTEME NOTIFICATIONS (RADAR) -->
-    <audio id="notifSound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
-    <div id="customToast" style="position: fixed; top: -100px; left: 5%; width: 90%; background: white; border-left: 5px solid #2563eb; box-shadow: 0 10px 25px rgba(0,0,0,0.3); border-radius: 8px; padding: 15px; z-index: 9999; transition: top 0.5s ease; display: flex; align-items: center; gap: 15px;">
-        <div style="font-size: 30px;">🔔</div>
-        <div><h4 style="margin: 0; color: #333; font-size: 16px;">Nouvelle Commande !</h4><p id="toastMsg" style="margin: 5px 0 0 0; color: #666; font-size: 14px;">...</p></div>
-    </div>
-    <!-- FICHIER AUDIO SILENCIEUX (Pour garder l'app éveillée) -->
-    <!-- Un son de 1h de silence qui tourne en boucle -->
-    <audio id="keepAliveSound" loop>
-        <source src="https://github.com/anars/blank-audio/raw/master/1-hour-of-silence.mp3" type="audio/mpeg">
-    </audio>
-    <audio id="notifSound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
-
-    <!-- BOUTON ACTIVATION MODE BACKGROUND -->
-    <div id="bgModeBtn" style="position: fixed; top: 20px; right: 20px; background: #333; color: white; padding: 8px 12px; border-radius: 20px; font-size: 11px; z-index: 9999; cursor: pointer; display: none;" onclick="enableBackgroundMode()">
-        💤 Mode Veille Désactivé
-    </div>
-
-    <script>
-        // --- 1. INSTALLATION SERVICE WORKER ---
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js')
-            .then(reg => console.log('Service Worker enregistré', reg))
-            .catch(err => console.log('Erreur SW', err));
-        }
-
-        // --- 2. LOGIQUE KEEP ALIVE (Anti-Fermeture) ---
-        let isBackgroundMode = false;
-        function enableBackgroundMode() {
-            const audio = document.getElementById('keepAliveSound');
-            const btn = document.getElementById('bgModeBtn');
-            
-            if (!isBackgroundMode) {
-                audio.play(); // Lance le "faux" lecteur musique
-                btn.style.background = "#2ecc71"; // Vert
-                btn.innerHTML = "⚡ Mode Arrière-plan ACTIF";
-                isBackgroundMode = true;
-                alert("L'application est maintenant protégée contre la mise en veille. Vous pouvez changer d'application, ça sonnera !");
-            }
-        }
-
-        // --- 3. RADAR AMÉLIORÉ ---
-        if (Notification.permission !== "granted") Notification.requestPermission();
-        
-        // Affiche le bouton Background si besoin
-        if (Notification.permission === "granted") {
-            document.getElementById('bgModeBtn').style.display = "block";
-        }
-
-        let lastKnownOrderId = localStorage.getItem('last_known_order') || '';
-
-        function checkNewOrders() {
-            // Anti-Cache violent + Timestamp
-            fetch('https://www.speeddelivro.com/api-check-new-orders.php?t=' + Date.now())
-                .then(r => r.json())
-                .then(data => {
-                    if (data.success && data.latest_order) {
-                        const newOrder = data.latest_order;
-                        
-                        // Init
-                        if (!lastKnownOrderId) { lastKnownOrderId = newOrder.order_id; localStorage.setItem('last_known_order', lastKnownOrderId); return; }
-                        
-                        // NOUVELLE COMMANDE DÉTECTÉE
-                        if (newOrder.order_id !== lastKnownOrderId) {
-                            
-                            const type = newOrder.order_is_admin_created == 1 ? "ADMIN" : "CLIENT";
-                            const amount = newOrder.order_total_amount;
-                            
-                            // A. Jouer le son fort
-                            const sound = document.getElementById('notifSound');
-                            sound.volume = 1.0;
-                            sound.play().catch(e => console.log("Erreur son:", e));
-
-                            // B. Notification Système via Service Worker (Marche mieux en background)
-                            if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-                                navigator.serviceWorker.controller.postMessage({
-                                    type: 'SHOW_NOTIFICATION',
-                                    title: `💰 Nouvelle Commande (${type})`,
-                                    options: {
-                                        body: `Montant : ${amount} TND\nTouchez pour ouvrir`,
-                                        icon: "https://cdn-icons-png.flaticon.com/512/1532/1532759.png",
-                                        vibrate: [500, 200, 500, 200, 500],
-                                        tag: 'new-order-' + newOrder.order_id,
-                                        renotify: true,
-                                        requireInteraction: true // Reste affiché tant qu'on ne clique pas
-                                    }
-                                });
-                            } else {
-                                // Fallback classique
-                                new Notification(`💰 Commande ${type}`, { body: `${amount} TND` });
-                            }
-
-                            // C. Mise à jour
-                            lastKnownOrderId = newOrder.order_id;
-                            localStorage.setItem('last_known_order', lastKnownOrderId);
-                        }
-                    }
-                })
-                .catch(e => console.log("Radar offline temporaire..."));
-        }
-
-        // Radar très rapide
-        setInterval(checkNewOrders, 5000);
-        
-        // Relance le radar si le navigateur le réveille
-        document.addEventListener("visibilitychange", () => {
-            if (!document.hidden) checkNewOrders();
-        });
-    </script>
+  
 </body>
 </html>
 </body>
