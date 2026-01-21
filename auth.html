@@ -56,7 +56,7 @@
         // --- AUTO-REDIRECT ---
         // Vérification immédiate pour rediriger si déjà connecté
         if (localStorage.getItem('admin_auth') === 'true') {
-            window.location.replace('admin-order.html');
+            window.location.replace('launcher.html');
         }
 
         // --- CONFIGURATION ENCODÉE (BASE64) ---
@@ -103,7 +103,7 @@
                 if (u_encoded === USER_TARGET && p_encoded === PASS_TARGET) {
                     localStorage.setItem('admin_auth', 'true');
                     localStorage.setItem('admin_user', u);
-                    window.location.replace('admin-order.html');
+                    window.location.replace('launcher.html');
                 } else {
                     err.innerHTML = "Identifiants incorrects.<br><small>Vérifiez majuscules et espaces.</small>";
                     err.style.display = 'block';
