@@ -230,5 +230,65 @@ body { padding-bottom: 70px; } /* Espace pour le menu */
             }
         });
     </script>
+    <!-- SONNERIE DE NOTIFICATION -->
+    <audio id="notifSound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
+
+    <!-- SCRIPT RADAR NOTIFICATIONS -->
+    <script>
+        // Demander l'autorisation d'envoyer des notifications au démarrage
+        if (Notification.permission !== "granted") {
+            Notification.requestPermission();
+        }
+
+        let lastKnownOrderId = localStorage.getItem('last_known_order') || '';
+
+        function checkNewOrders() {
+            fetch('https://www.speeddelivro.com/api-check-new-orders.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.latest_order) {
+                        const newOrder = data.latest_order;
+                        
+                        // Si c'est la première fois, on initialise juste la mémoire
+                        if (!lastKnownOrderId) {
+                            lastKnownOrderId = newOrder.order_id;
+                            localStorage.setItem('last_known_order', lastKnownOrderId);
+                            return;
+                        }
+
+                        // SI UNE NOUVELLE COMMANDE EST DÉTECTÉE
+                        if (newOrder.order_id !== lastKnownOrderId) {
+                            
+                            // 1. Jouer le son (Caisse enregistreuse)
+                            document.getElementById('notifSound').play();
+
+                            // 2. Envoyer la Notification Native
+                            if (Notification.permission === "granted") {
+                                const type = newOrder.order_is_admin_created == 1 ? "👨‍💼 ADMIN" : "📱 CLIENT";
+                                const notif = new Notification("Nouvelle Commande SpeedDelivro !", {
+                                    body: `Commande ${type} : ${newOrder.order_id}\nMontant : ${newOrder.order_total_amount} TND`,
+                                    icon: "https://cdn-icons-png.flaticon.com/512/1532/1532759.png",
+                                    vibrate: [200, 100, 200, 100, 200]
+                                });
+
+                                // Au clic sur la notif, on ouvre l'onglet "Gérer"
+                                notif.onclick = function() {
+                                    window.location.href = "manage-orders.html";
+                                };
+                            }
+
+                            // 3. Mettre à jour la mémoire
+                            lastKnownOrderId = newOrder.order_id;
+                            localStorage.setItem('last_known_order', lastKnownOrderId);
+                        }
+                    }
+                });
+        }
+
+        // Lancer le radar toutes les 30 secondes
+        setInterval(checkNewOrders, 30000);
+        // Lancer une fois au démarrage
+        setTimeout(checkNewOrders, 2000);
+    </script>
 </body>
 </html>
