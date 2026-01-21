@@ -230,65 +230,106 @@ body { padding-bottom: 70px; } /* Espace pour le menu */
             }
         });
     </script>
-    <!-- SONNERIE DE NOTIFICATION -->
+    <!-- SONNERIE -->
     <audio id="notifSound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
 
-    <!-- SCRIPT RADAR NOTIFICATIONS -->
+    <!-- POPUP VISUEL (Le Toast) -->
+    <div id="customToast" style="
+        position: fixed; 
+        top: -100px; 
+        left: 5%; 
+        width: 90%; 
+        background: white; 
+        border-left: 5px solid #2563eb; 
+        box-shadow: 0 10px 25px rgba(0,0,0,0.3); 
+        border-radius: 8px; 
+        padding: 15px; 
+        z-index: 9999; 
+        transition: top 0.5s ease;
+        display: flex;
+        align-items: center;
+        gap: 15px;">
+        <div style="font-size: 30px;">🔔</div>
+        <div>
+            <h4 style="margin: 0; color: #333; font-size: 16px;">Nouvelle Commande !</h4>
+            <p id="toastMsg" style="margin: 5px 0 0 0; color: #666; font-size: 14px;">Chargement...</p>
+        </div>
+    </div>
+
+    <!-- LOGIQUE RADAR V2 -->
     <script>
-        // Demander l'autorisation d'envoyer des notifications au démarrage
-        if (Notification.permission !== "granted") {
-            Notification.requestPermission();
-        }
+        // Demande permission au démarrage
+        if (Notification.permission !== "granted") Notification.requestPermission();
 
         let lastKnownOrderId = localStorage.getItem('last_known_order') || '';
 
+        function showVisualAlert(msg) {
+            const toast = document.getElementById('customToast');
+            const msgBox = document.getElementById('toastMsg');
+            
+            // 1. Remplir le message
+            msgBox.innerHTML = msg;
+            
+            // 2. Faire descendre la bannière
+            toast.style.top = "20px";
+            
+            // 3. Faire vibrer le téléphone (Bzz Bzz)
+            if ("vibrate" in navigator) navigator.vibrate([500, 200, 500]);
+
+            // 4. Cacher après 8 secondes
+            setTimeout(() => { toast.style.top = "-100px"; }, 8000);
+        }
+
         function checkNewOrders() {
-            fetch('https://www.speeddelivro.com/api-check-new-orders.php')
-                .then(response => response.json())
+            fetch('https://www.speeddelivro.com/api-check-new-orders.php?nocache=' + Date.now())
+                .then(r => r.json())
                 .then(data => {
                     if (data.success && data.latest_order) {
                         const newOrder = data.latest_order;
                         
-                        // Si c'est la première fois, on initialise juste la mémoire
+                        // Initialisation au premier lancement
                         if (!lastKnownOrderId) {
                             lastKnownOrderId = newOrder.order_id;
                             localStorage.setItem('last_known_order', lastKnownOrderId);
                             return;
                         }
 
-                        // SI UNE NOUVELLE COMMANDE EST DÉTECTÉE
+                        // DÉTECTION NOUVELLE COMMANDE
                         if (newOrder.order_id !== lastKnownOrderId) {
                             
-                            // 1. Jouer le son (Caisse enregistreuse)
-                            document.getElementById('notifSound').play();
+                            // A. Son
+                            document.getElementById('notifSound').play().catch(e => console.log("Son bloqué par navigateur"));
 
-                            // 2. Envoyer la Notification Native
+                            // B. Infos
+                            const type = newOrder.order_is_admin_created == 1 ? "ADMIN 👨‍💼" : "CLIENT 📱";
+                            const txt = `Commande : <b>${newOrder.order_id}</b><br>Montant : <b>${newOrder.order_total_amount} TND</b><br>Source : ${type}`;
+
+                            // C. Alerte Visuelle Interne (IMMANQUABLE)
+                            showVisualAlert(txt);
+
+                            // D. Notification Système (Barre d'état)
                             if (Notification.permission === "granted") {
-                                const type = newOrder.order_is_admin_created == 1 ? "👨‍💼 ADMIN" : "📱 CLIENT";
-                                const notif = new Notification("Nouvelle Commande SpeedDelivro !", {
-                                    body: `Commande ${type} : ${newOrder.order_id}\nMontant : ${newOrder.order_total_amount} TND`,
-                                    icon: "https://cdn-icons-png.flaticon.com/512/1532/1532759.png",
-                                    vibrate: [200, 100, 200, 100, 200]
-                                });
-
-                                // Au clic sur la notif, on ouvre l'onglet "Gérer"
-                                notif.onclick = function() {
-                                    window.location.href = "manage-orders.html";
-                                };
+                                try {
+                                    new Notification("💰 Nouvelle Commande !", {
+                                        body: `${type} - ${newOrder.order_total_amount} TND`,
+                                        icon: "https://cdn-icons-png.flaticon.com/512/1532/1532759.png",
+                                        tag: newOrder.order_id, // Évite les doublons
+                                        requireInteraction: true // Reste affiché
+                                    });
+                                } catch (e) { console.log("Notif système échouée"); }
                             }
 
-                            // 3. Mettre à jour la mémoire
+                            // E. Mise à jour mémoire
                             lastKnownOrderId = newOrder.order_id;
                             localStorage.setItem('last_known_order', lastKnownOrderId);
                         }
                     }
-                });
+                })
+                .catch(err => console.error("Erreur Radar:", err));
         }
 
-        // Lancer le radar toutes les 05 secondes
+        // Radar rapide (toutes les 5 secondes)
         setInterval(checkNewOrders, 5000);
-        // Lancer une fois au démarrage
-        setTimeout(checkNewOrders, 2000);
     </script>
 </body>
 </html>
