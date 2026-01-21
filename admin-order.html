@@ -12,6 +12,18 @@
     <!-- Google Maps (Ta clé API est incluse) -->
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAmUGJ1amdxeUbL_E_A-KsSZqokqyguCU8&libraries=places"></script>
     <style>
+        /* Ajout pour le menu */
+body { padding-bottom: 70px; } /* Espace pour le menu */
+.bottom-nav {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    height: 60px; background: white;
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+    display: flex; justify-content: space-around; align-items: center;
+    z-index: 1000;
+}
+.nav-item { text-decoration: none; color: #999; text-align: center; font-size: 12px; flex: 1; }
+.nav-item.active { color: #2563eb; font-weight: bold; }
+.nav-icon { font-size: 24px; display: block; margin-bottom: 2px; }
         body { font-family: -apple-system, sans-serif; margin: 0; padding: 20px; background: #f5f5f5; padding-bottom: 80px; }
         .container { max-width: 600px; margin: 0 auto; }
         .card { background: white; border-radius: 12px; padding: 20px; margin-bottom: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
@@ -81,7 +93,17 @@
             <button type="submit" class="btn-submit" id="btnSubmit">Créer Commande</button>
         </form>
     </div>
-
+<!-- Menu de Navigation -->
+<div class="bottom-nav">
+    <a href="#" class="nav-item active">
+        <span class="nav-icon">➕</span>
+        Créer
+    </a>
+    <a href="manage-orders.html" class="nav-item">
+        <span class="nav-icon">📋</span>
+        Gérer
+    </a>
+</div>
     <script>
         // --- AUTHENTICATION ---
         if (!localStorage.getItem('admin_auth')) window.location.href = 'auth.html';
