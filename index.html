@@ -5,35 +5,133 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SPEED DELIVRO</title>
 
-    <!-- Redirection instantanée avec détection de présence de l'application -->
+    <!-- Smart App Banner iOS - Affiche automatiquement une bannière native pour télécharger l'app -->
+    <meta name="apple-itunes-app" content="app-id=6747889248, app-argument=speeddelivro://">
+
+    <!-- Open Graph pour partage réseaux sociaux -->
+    <meta property="og:title" content="Speed Delivro - Livraison rapide">
+    <meta property="og:description" content="Téléchargez l'application Speed Delivro pour commander facilement">
+    <meta property="og:image" content="https://levirusdzrzs.github.io/speedapp/appicon.png">
+    <meta property="og:url" content="https://app.speeddelivro.com">
+    <meta property="og:type" content="website">
+
+    <!-- Redirection intelligente avec support paramètres et détection in-app browser -->
     <script>
         (function() {
             const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+            const urlParams = new URLSearchParams(window.location.search);
+
+            // Récupérer les paramètres dynamiques de l'URL
+            const orderId = urlParams.get('order') || urlParams.get('o');
+            const productId = urlParams.get('product') || urlParams.get('p');
+            const screen = urlParams.get('screen') || urlParams.get('s');
+            const forceStore = urlParams.get('store') === 'true';
+
+            // Construire le deeplink avec paramètres
+            function buildDeeplink() {
+                let path = '';
+                if (orderId) path = 'order/' + orderId;
+                else if (productId) path = 'product/' + productId;
+                else if (screen) path = screen;
+                return 'speeddelivro://' + path;
+            }
+
+            // Détecter les in-app browsers (Facebook, Instagram, Messenger, etc.)
+            function isInAppBrowser() {
+                const inAppPatterns = [
+                    'FBAN', 'FBAV',           // Facebook
+                    'Instagram',               // Instagram
+                    'Messenger',               // Messenger
+                    'Twitter',                 // Twitter
+                    'Line',                    // Line
+                    'KAKAOTALK',              // KakaoTalk
+                    'Snapchat',               // Snapchat
+                    'WhatsApp',               // WhatsApp (rare mais possible)
+                    'LinkedIn',               // LinkedIn
+                    'Pinterest'               // Pinterest
+                ];
+                return inAppPatterns.some(pattern => userAgent.includes(pattern));
+            }
+
+            // Afficher la page au lieu de rediriger automatiquement
+            function showPage() {
+                document.body.style.visibility = 'visible';
+            }
+
+            // URLs des stores
+            const appStoreUrl = 'https://apps.apple.com/tn/app/speeddelivro/id6747889248';
+            const playStoreUrl = 'https://play.google.com/store/apps/details?id=com.speed.delivro.buyer';
+
+            // Si in-app browser détecté, afficher la page avec message
+            if (isInAppBrowser()) {
+                window.addEventListener('DOMContentLoaded', function() {
+                    showPage();
+                    // Ajouter un message pour ouvrir dans le navigateur
+                    const container = document.querySelector('.container');
+                    if (container) {
+                        const notice = document.createElement('p');
+                        notice.className = 'inapp-notice';
+                        notice.innerHTML = '⚠️ Pour une meilleure expérience, ouvrez ce lien dans Safari ou Chrome';
+                        notice.style.cssText = 'color:#e74c3c;font-size:13px;margin-bottom:15px;padding:10px;background:#fff5f5;border-radius:8px;';
+                        container.insertBefore(notice, container.firstChild.nextSibling);
+                    }
+                });
+                return; // Ne pas rediriger automatiquement
+            }
+
+            // Si force store demandé
+            if (forceStore) {
+                if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
+                    window.location.replace(appStoreUrl);
+                } else if (/android/i.test(userAgent)) {
+                    window.location.replace(playStoreUrl);
+                } else {
+                    window.location.replace('https://www.speeddelivro.com');
+                }
+                return;
+            }
 
             // Détection iOS (iPhone, iPad, iPod)
             if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
-                // Tenter d'ouvrir l'application si elle est installée
-                const appScheme = 'speeddelivro://';
-                const appStoreUrl = 'https://apps.apple.com/tn/app/speeddelivro/id6747889248';
+                const deeplink = buildDeeplink();
 
                 // Essayer d'ouvrir l'app
-                window.location.href = appScheme;
+                window.location.href = deeplink;
 
-                // Si l'app n'est pas installée, rediriger vers l'App Store après un court délai
+                // Si l'app n'est pas installée, afficher la page après un délai
                 setTimeout(function() {
-                    window.location.replace(appStoreUrl);
-                }, 1500);
+                    // Vérifier si on est toujours sur la page (app non ouverte)
+                    if (!document.hidden) {
+                        showPage();
+                        // Optionnel: rediriger vers store après encore 3s
+                        // setTimeout(() => window.location.replace(appStoreUrl), 3000);
+                    }
+                }, 1200);
             }
             // Détection Android
             else if (/android/i.test(userAgent)) {
-                // Intent URL pour Android - ouvre l'app si installée en ciblant l'activité Splash
-                const intentUrl = 'intent://launch#Intent;scheme=speeddelivro;package=com.speed.delivro.buyer;component=com.speed.delivro.buyer/com.speed.delivro.app.ui.activities.authenticate.SplashActivityParent;S.browser_fallback_url=https://play.google.com/store/apps/details?id=com.speed.delivro.buyer;end';
+                // Construire l'intent URL avec le deeplink dynamique
+                const deeplink = buildDeeplink();
+                const encodedDeeplink = encodeURIComponent(deeplink);
+
+                // Intent URL pour Android avec fallback
+                const intentUrl = 'intent://launch#Intent;' +
+                    'scheme=speeddelivro;' +
+                    'package=com.speed.delivro.buyer;' +
+                    'S.browser_fallback_url=' + encodeURIComponent(playStoreUrl) + ';' +
+                    (orderId ? 'S.order_id=' + orderId + ';' : '') +
+                    (productId ? 'S.product_id=' + productId + ';' : '') +
+                    (screen ? 'S.screen=' + screen + ';' : '') +
+                    'end';
 
                 window.location.replace(intentUrl);
+
+                // Fallback: afficher la page si l'intent échoue
+                setTimeout(showPage, 1500);
             }
-            // Par défaut (desktop ou appareil inconnu) - rediriger vers le site web
+            // Desktop - afficher la page
             else {
-                window.location.replace('https://www.speeddelivro.com');
+                window.addEventListener('DOMContentLoaded', showPage);
             }
         })();
     </script>
@@ -56,7 +154,54 @@
             padding: 20px;
             position: relative;
             overflow: hidden;
-            visibility: hidden; /* Masquer le contenu pendant la redirection */
+            visibility: hidden; /* Masquer pendant la redirection - sera affiché par JS si nécessaire */
+        }
+
+        /* Animation de chargement pendant la tentative de deeplink */
+        .loading-spinner {
+            display: none;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #0019FF;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Style pour le bouton d'ouverture directe de l'app */
+        .open-app-btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #0019FF 0%, #4a5aff 100%);
+            color: white;
+            padding: 16px 40px;
+            border-radius: 12px;
+            font-size: 17px;
+            font-weight: 600;
+            text-decoration: none;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 25, 255, 0.3);
+        }
+
+        .open-app-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 25, 255, 0.4);
+        }
+
+        .open-app-btn:active {
+            transform: translateY(0);
+        }
+
+        .separator {
+            color: #999;
+            font-size: 14px;
+            margin: 15px 0;
         }
         
         /* Images décoratives sur les côtés */
@@ -260,17 +405,59 @@
             <img src="https://levirusdzrzs.github.io/speedapp/appicon.png" alt="Logo SPEED DELIVRO">
         </div>
         <h1>SPEED DELIVRO</h1>
-        <p class="subtitle">Redirection en cours...</p>
+        <p class="subtitle" id="subtitle">Redirection en cours...</p>
 
         <div class="buttons">
-            <a href="https://play.google.com/store/apps/details?id=com.speed.delivro.buyer" target="_blank" class="store-button">
+            <!-- Bouton pour ouvrir directement l'app si installée -->
+            <a href="speeddelivro://" id="openAppBtn" class="open-app-btn">
+                Ouvrir l'application
+            </a>
+
+            <p class="separator">ou téléchargez l'application</p>
+
+            <a href="https://play.google.com/store/apps/details?id=com.speed.delivro.buyer" target="_blank" class="store-button" id="playStoreBtn">
                 <img src="https://upload.wikimedia.org/wikipedia/commons/8/8e/Google_Play_Store_badge_FR.svg" alt="Télécharger sur Google Play">
             </a>
 
-            <a href="https://apps.apple.com/tn/app/speeddelivro/id6747889248" target="_blank" class="store-button">
+            <a href="https://apps.apple.com/tn/app/speeddelivro/id6747889248" target="_blank" class="store-button" id="appStoreBtn">
                 <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/40/Download_on_the_App_Store_Badge_FRCA_RGB_blk.svg/1280px-Download_on_the_App_Store_Badge_FRCA_RGB_blk.svg.png" alt="Télécharger sur App Store">
             </a>
         </div>
+
+        <!-- Script pour mettre à jour le deeplink du bouton avec les paramètres URL -->
+        <script>
+            (function() {
+                const urlParams = new URLSearchParams(window.location.search);
+                const orderId = urlParams.get('order') || urlParams.get('o');
+                const productId = urlParams.get('product') || urlParams.get('p');
+                const screen = urlParams.get('screen') || urlParams.get('s');
+
+                let path = '';
+                if (orderId) path = 'order/' + orderId;
+                else if (productId) path = 'product/' + productId;
+                else if (screen) path = screen;
+
+                const deeplink = 'speeddelivro://' + path;
+                const btn = document.getElementById('openAppBtn');
+                if (btn) btn.href = deeplink;
+
+                // Mettre à jour le subtitle quand la page est visible
+                const subtitle = document.getElementById('subtitle');
+                if (document.body.style.visibility === 'visible' && subtitle) {
+                    subtitle.textContent = 'Livraison rapide et fiable';
+                }
+
+                // Masquer le bouton store non pertinent selon la plateforme
+                const ua = navigator.userAgent;
+                if (/iPad|iPhone|iPod/.test(ua)) {
+                    const playBtn = document.getElementById('playStoreBtn');
+                    if (playBtn) playBtn.style.display = 'none';
+                } else if (/android/i.test(ua)) {
+                    const appBtn = document.getElementById('appStoreBtn');
+                    if (appBtn) appBtn.style.display = 'none';
+                }
+            })();
+        </script>
     </div>
 </body>
 <style>
