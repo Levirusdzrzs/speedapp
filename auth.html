@@ -2,120 +2,117 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Connexion Admin</title>
-    
-    <!-- Liens pour l'installation Mobile -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SpeedDelivro Admin - Connexion</title>
     <link rel="manifest" href="manifest-admin.json">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1532/1532759.png">
-
+    <meta name="theme-color" content="#1a5d1a">
     <style>
-        body { font-family: -apple-system, sans-serif; background: #f0f2f5; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-        .card { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 90%; max-width: 350px; position: relative; }
-        .input-group { position: relative; margin: 15px 0; }
-        input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 16px; }
-        
-        /* Bouton Oeil */
-        .password-wrapper { position: relative; width: 100%; }
-        .toggle-btn {
-            position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
-            background: none; border: none; cursor: pointer; font-size: 20px; padding: 0; color: #666; z-index: 5;
-        }
-
-        button.submit-btn { width: 100%; padding: 12px; background: #1877f2; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold; margin-top: 10px; }
-        .error { color: #dc2626; background: #fee2e2; padding: 10px; border-radius: 4px; text-align: center; margin-bottom: 15px; display: none; }
-        .version { text-align: center; color: #ccc; font-size: 10px; margin-top: 20px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #1a5d1a 0%, #2e7d32 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .login-container { background: white; border-radius: 20px; padding: 40px 30px; width: 100%; max-width: 400px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+        .logo { text-align: center; margin-bottom: 30px; }
+        .logo h1 { color: #1a5d1a; font-size: 28px; }
+        .logo p { color: #666; margin-top: 5px; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; color: #333; font-weight: 500; }
+        .form-group input { width: 100%; padding: 15px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 16px; transition: border-color 0.3s; }
+        .form-group input:focus { outline: none; border-color: #1a5d1a; }
+        .password-wrapper { position: relative; }
+        .toggle-btn { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 18px; }
+        .btn-login { width: 100%; padding: 15px; background: #1a5d1a; color: white; border: none; border-radius: 10px; font-size: 18px; font-weight: 600; cursor: pointer; transition: background 0.3s; }
+        .btn-login:hover { background: #2e7d32; }
+        .btn-login:disabled { background: #ccc; cursor: not-allowed; }
+        .error-message { background: #ffebee; color: #c62828; padding: 12px; border-radius: 8px; margin-bottom: 20px; display: none; text-align: center; }
+        .error-message.show { display: block; }
     </style>
 </head>
 <body>
-    <div class="card">
-        <h2 style="text-align: center; margin-bottom: 20px; color: #333;">SpeedDelivro Admin</h2>
+    <div class="login-container">
+        <div class="logo">
+            <h1>🚀 SpeedDelivro</h1>
+            <p>Administration</p>
+        </div>
         
-        <div id="error" class="error"></div>
+        <div class="error-message" id="errorMessage"></div>
         
         <form id="loginForm">
-            <div class="input-group">
-                <input type="text" id="username" name="username" placeholder="Utilisateur" required autocomplete="username" value="sami">
+            <div class="form-group">
+                <label>Nom d'utilisateur</label>
+                <input type="text" id="username" name="username" placeholder="Entrez votre identifiant" required autocomplete="username">
             </div>
             
-            <div class="input-group">
+            <div class="form-group">
+                <label>Mot de passe</label>
                 <div class="password-wrapper">
                     <input type="password" id="password" name="password" placeholder="Mot de passe" required autocomplete="current-password">
                     <button type="button" class="toggle-btn" onclick="togglePassword()">👁️</button>
                 </div>
             </div>
             
-            <button type="submit" class="submit-btn" id="btnSubmit">Se connecter</button>
+            <button type="submit" class="btn-login" id="btnLogin">Se connecter</button>
         </form>
-        <div class="version">v5.0 - Universal Compatible</div>
     </div>
 
     <script>
-        // --- AUTO-REDIRECT ---
-        // Vérification immédiate pour rediriger si déjà connecté
-        if (localStorage.getItem('admin_auth') === 'true') {
-            window.location.replace('launcher.html');
-        }
-
-        // --- CONFIGURATION ENCODÉE (BASE64) ---
-        // User "sami"
-        const USER_TARGET = "c2FtaQ=="; 
-        // Pass "speed2026!"
-        const PASS_TARGET = "c3BlZWQyMDI2IQ=="; 
-
+        const API_AUTH_URL = 'https://www.speeddelivro.com/api-auth.php';
+        
         function togglePassword() {
             const input = document.getElementById('password');
-            const btn = document.querySelector('.toggle-btn');
-            if (input.type === "password") {
-                input.type = "text";
-                btn.textContent = "🙈";
-            } else {
-                input.type = "password";
-                btn.textContent = "👁️";
-            }
+            input.type = input.type === 'password' ? 'text' : 'password';
         }
-
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
-            e.preventDefault(); 
+        
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
             
-            // 1. Récupération
-            // .trim() est CRUCIAL : il enlève les espaces invisibles qu'un clavier mobile ajoute souvent à la fin
-            const u = document.getElementById('username').value.trim();
-            const p = document.getElementById('password').value.trim();
-            const err = document.getElementById('error');
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const btnLogin = document.getElementById('btnLogin');
+            const errorMessage = document.getElementById('errorMessage');
             
-            err.style.display = 'none';
-
+            btnLogin.disabled = true;
+            btnLogin.textContent = 'Vérification...';
+            errorMessage.classList.remove('show');
+            
             try {
-                // 2. Encodage de ce que vous avez tapé
-                // btoa() est une fonction native universelle (PC & Mobile)
-                const u_encoded = btoa(u.toLowerCase()); // On met le user en minuscule avant d'encoder
-                const p_encoded = btoa(p);
-
-                // Debug dans la console (F12) pour comprendre si ça rate
-                console.log("User tapé:", u, "-> Encodé:", u_encoded);
-                console.log("Pass tapé:", p, "-> Encodé:", p_encoded);
-                console.log("Attendu  :", PASS_TARGET);
-
-                // 3. Comparaison
-                if (u_encoded === USER_TARGET && p_encoded === PASS_TARGET) {
-                    localStorage.setItem('admin_auth', 'true');
-                    localStorage.setItem('admin_user', u);
-                    window.location.replace('launcher.html');
+                const response = await fetch(API_AUTH_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                
+                const data = await response.json();
+                
+                if (data.status === 1) {
+                    localStorage.setItem('speeddelivro_admin_session', JSON.stringify({
+                        token: data.token,
+                        username: data.username,
+                        expiry: data.expiry,
+                        timestamp: Date.now()
+                    }));
+                    window.location.href = 'admin-order.html';
                 } else {
-                    err.innerHTML = "Identifiants incorrects.<br><small>Vérifiez majuscules et espaces.</small>";
-                    err.style.display = 'block';
-                    // On vide le mot de passe pour forcer à retaper
-                    document.getElementById('password').value = '';
+                    throw new Error(data.msg || 'Identifiants incorrects');
                 }
             } catch (error) {
-                console.error(error);
-                err.textContent = "Erreur technique navigateur.";
-                err.style.display = 'block';
+                errorMessage.textContent = '❌ ' + error.message;
+                errorMessage.classList.add('show');
+                document.getElementById('password').value = '';
+            } finally {
+                btnLogin.disabled = false;
+                btnLogin.textContent = 'Se connecter';
             }
         });
+        
+        // Auto-redirect si déjà connecté
+        const session = localStorage.getItem('speeddelivro_admin_session');
+        if (session) {
+            const data = JSON.parse(session);
+            if (data.expiry && data.expiry > Math.floor(Date.now() / 1000)) {
+                window.location.href = 'admin-order.html';
+            } else {
+                localStorage.removeItem('speeddelivro_admin_session');
+            }
+        }
     </script>
 </body>
 </html>
