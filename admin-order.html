@@ -101,9 +101,19 @@
 
     <!-- LOGIQUE JAVASCRIPT -->
     <script>
-        // --- AUTH ---
-        if (!localStorage.getItem('admin_auth')) window.location.href = 'auth.html';
-        function logout() { localStorage.removeItem('admin_auth'); window.location.href = 'auth.html'; }
+        // --- AUTH SÉCURISÉ ---
+(function() {
+    const session = localStorage.getItem('speeddelivro_admin_session');
+    if (!session) { window.location.href = 'auth.html'; return; }
+    try {
+        const data = JSON.parse(session);
+        if (!data.expiry || data.expiry < Math.floor(Date.now() / 1000)) {
+            localStorage.removeItem('speeddelivro_admin_session');
+            window.location.href = 'auth.html';
+        }
+    } catch(e) { localStorage.removeItem('speeddelivro_admin_session'); window.location.href = 'auth.html'; }
+})();
+function logout() { localStorage.removeItem('speeddelivro_admin_session'); window.location.href = 'auth.html'; }
 
         // --- API ---
         const URL_RESTOS = 'https://www.speeddelivro.com/api-restaurants-list.php';
