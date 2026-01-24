@@ -12,55 +12,24 @@
     
     <style>
         body { margin: 0; padding: 0; font-family: sans-serif; height: 100vh; width: 100vw; overflow: hidden; background: #333; }
-        
-        #contentFrame {
-            position: absolute; top: 0; left: 0; width: 100%;
-            height: calc(100% - 60px); border: none; background: #f5f5f5;
-        }
-
-        .bottom-nav {
-            position: fixed; bottom: 0; left: 0; width: 100%; height: 60px;
-            background: white; box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
-            display: flex; justify-content: space-around; align-items: center; z-index: 9999;
-        }
+        #contentFrame { position: absolute; top: 0; left: 0; width: 100%; height: calc(100% - 60px); border: none; background: #f5f5f5; }
+        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; height: 60px; background: white; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); display: flex; justify-content: space-around; align-items: center; z-index: 9999; }
         .nav-item { text-decoration: none; color: #999; text-align: center; font-size: 11px; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; cursor: pointer; }
         .nav-item.active { color: #2563eb; font-weight: bold; background-color: #f0f7ff; }
         .nav-icon { font-size: 22px; margin-bottom: 2px; display: block; }
-
-        #bgModeBtn {
-            position: fixed; top: 10px; right: 10px; 
-            padding: 8px 15px; 
-            border-radius: 20px; font-size: 11px; z-index: 10000; cursor: pointer; 
-            border: 2px solid white;
-            font-weight: bold;
-            transition: all 0.3s ease;
-        }
+        #bgModeBtn { position: fixed; top: 10px; right: 10px; padding: 8px 15px; border-radius: 20px; font-size: 12px; z-index: 10000; cursor: pointer; border: 2px solid white; font-weight: bold; }
         .bg-inactive { background: #e74c3c; color: white; }
         .bg-active { background: #2ecc71; color: white; animation: pulse 2s infinite; }
-        
-        @keyframes pulse {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.7); }
-            50% { box-shadow: 0 0 0 10px rgba(46, 204, 113, 0); }
-        }
-
-        #statusBar {
-            position: fixed; top: 10px; left: 10px;
-            background: rgba(0,0,0,0.7); color: #aaa; padding: 5px 10px;
-            border-radius: 10px; font-size: 10px; z-index: 10000;
-        }
-        #statusBar.has-pending { background: #e74c3c; color: white; }
+        @keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.7); } 50% { box-shadow: 0 0 0 15px rgba(46, 204, 113, 0); } }
+        #statusBar { position: fixed; top: 10px; left: 10px; background: rgba(0,0,0,0.8); color: #0f0; padding: 5px 10px; border-radius: 10px; font-size: 10px; z-index: 10000; font-family: monospace; }
     </style>
 </head>
 <body>
-
-    <script>
-        if (localStorage.getItem('admin_auth') !== 'true') window.location.replace('auth.html');
-    </script>
+    <script>if (localStorage.getItem('admin_auth') !== 'true') window.location.replace('auth.html');</script>
 
     <iframe id="contentFrame" src="admin-order.html"></iframe>
-
-    <div id="statusBar">🔍 Radar: Initialisation...</div>
-    <div id="bgModeBtn" class="bg-inactive" onclick="toggleBackgroundMode()">🔕 Radar OFF</div>
+    <div id="statusBar">⏸️ Radar OFF</div>
+    <div id="bgModeBtn" class="bg-inactive" onclick="toggleRadar()">🔕 Radar OFF</div>
 
     <div class="bottom-nav">
         <div class="nav-item active" onclick="loadPage('admin-order.html', this)"><span class="nav-icon">➕</span>Créer</div>
@@ -70,230 +39,127 @@
 
     <audio id="notifSound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
 
-    <div id="customToast" style="position: fixed; top: -150px; left: 5%; width: 90%; background: white; border-left: 5px solid #2563eb; box-shadow: 0 10px 25px rgba(0,0,0,0.3); border-radius: 8px; padding: 15px; z-index: 10001; transition: top 0.5s ease;">
-        <div style="display: flex; align-items: center; gap: 15px;">
-            <img src="https://app.speeddelivro.com/admin_icon.png" style="width: 50px; height: 50px; border-radius: 8px;">
-            <div style="flex:1;">
-                <h4 style="margin: 0; color: #e74c3c; font-size: 18px;">🔔 Nouvelle Commande !</h4>
-                <p id="toastMsg" style="margin: 5px 0 0 0; color: #333; font-size: 14px;">...</p>
-            </div>
+    <div id="toast" style="position:fixed;top:-150px;left:5%;width:90%;background:#fff;border-left:5px solid #e74c3c;box-shadow:0 10px 30px rgba(0,0,0,0.3);border-radius:10px;padding:15px;z-index:10001;transition:top 0.4s ease;">
+        <div style="display:flex;align-items:center;gap:15px;">
+            <div style="font-size:40px;">🔔</div>
+            <div><h4 style="margin:0;color:#e74c3c;">Nouvelle Commande!</h4><p id="toastMsg" style="margin:5px 0 0;color:#333;font-size:14px;"></p></div>
         </div>
-        <button onclick="dismissToast()" style="margin-top:10px; width:100%; padding:10px; background:#2563eb; color:white; border:none; border-radius:5px; font-size:14px; cursor:pointer;">OK - J'ai vu</button>
+        <button onclick="hideToast()" style="margin-top:12px;width:100%;padding:12px;background:#2563eb;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer;">✓ OK</button>
     </div>
 
     <script>
-        // ============ CONFIGURATION ============
-        const API_URL = 'https://www.speeddelivro.com/api-check-new-orders.php';
-        const CHECK_INTERVAL = 5000; // 5 secondes
-        const MAX_AGE_SECONDS = 600; // Ignorer commandes > 10 minutes
-        const CUSTOM_ICON = "https://app.speeddelivro.com/admin_icon.png";
+        const API = 'https://www.speeddelivro.com/api-check-new-orders.php';
+        let radarOn = false, audioCtx = null, checkTimer = null;
+        let alertedIds = JSON.parse(localStorage.getItem('alertedIds') || '[]');
 
-        // ============ ÉTAT ============
-        let isRadarActive = false;
-        let audioContext = null;
-        let silentSource = null;
-        let checkInterval = null;
-        let alertedOrders = JSON.parse(localStorage.getItem('alerted_orders') || '[]');
-
-        // Nettoyer les anciennes alertes (garder seulement les 50 dernières)
-        if (alertedOrders.length > 50) {
-            alertedOrders = alertedOrders.slice(-50);
-            localStorage.setItem('alerted_orders', JSON.stringify(alertedOrders));
-        }
-
-        // ============ NAVIGATION ============
         function loadPage(url, el) {
             document.getElementById('contentFrame').src = url;
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
             el.classList.add('active');
         }
 
-        // ============ KEEP-ALIVE AUDIO (INFINI) ============
-        function startSilentAudio() {
+        function startAudio() {
             try {
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                
-                // Créer un oscillateur silencieux
-                const oscillator = audioContext.createOscillator();
-                const gainNode = audioContext.createGain();
-                
-                oscillator.connect(gainNode);
-                gainNode.connect(audioContext.destination);
-                
-                // Volume à 0.001 (quasi inaudible mais maintient l'audio actif)
-                gainNode.gain.value = 0.001;
-                oscillator.frequency.value = 1; // 1 Hz = inaudible
-                
-                oscillator.start();
-                silentSource = oscillator;
-                
-                console.log('🔊 Silent audio started - App will stay alive');
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                gain.gain.value = 0.001;
+                osc.frequency.value = 1;
+                osc.start();
                 return true;
-            } catch (e) {
-                console.error('Audio error:', e);
-                return false;
-            }
+            } catch(e) { return false; }
         }
 
-        function stopSilentAudio() {
-            if (silentSource) {
-                silentSource.stop();
-                silentSource = null;
-            }
-            if (audioContext) {
-                audioContext.close();
-                audioContext = null;
-            }
+        function stopAudio() {
+            if (audioCtx) { audioCtx.close(); audioCtx = null; }
         }
 
-        // ============ RADAR TOGGLE ============
-        function toggleBackgroundMode() {
+        function toggleRadar() {
             const btn = document.getElementById('bgModeBtn');
+            const bar = document.getElementById('statusBar');
             
-            if (!isRadarActive) {
-                // Activer le radar
-                if (startSilentAudio()) {
-                    isRadarActive = true;
-                    btn.className = 'bg-active';
-                    btn.innerHTML = '🔔 Radar ACTIF';
-                    
-                    // Démarrer le polling
-                    checkNewOrders(); // Check immédiat
-                    checkInterval = setInterval(checkNewOrders, CHECK_INTERVAL);
-                    
-                    updateStatus('✅ Radar actif - Surveillance en cours');
-                    
-                    // Demander permission notifications
-                    if (Notification.permission === 'default') {
-                        Notification.requestPermission();
-                    }
-                } else {
-                    alert('Erreur audio. Cliquez à nouveau.');
-                }
+            if (!radarOn) {
+                if (!startAudio()) { alert('Erreur audio'); return; }
+                radarOn = true;
+                btn.className = 'bg-active';
+                btn.innerHTML = '🔔 Radar ON';
+                checkOrders();
+                checkTimer = setInterval(checkOrders, 5000);
+                if (Notification.permission === 'default') Notification.requestPermission();
             } else {
-                // Désactiver le radar
-                isRadarActive = false;
-                stopSilentAudio();
-                
-                if (checkInterval) {
-                    clearInterval(checkInterval);
-                    checkInterval = null;
-                }
-                
+                radarOn = false;
+                stopAudio();
+                clearInterval(checkTimer);
                 btn.className = 'bg-inactive';
                 btn.innerHTML = '🔕 Radar OFF';
-                updateStatus('⏸️ Radar désactivé');
+                bar.textContent = '⏸️ Radar OFF';
             }
         }
 
-        // ============ STATUS BAR ============
-        function updateStatus(msg, hasPending = false) {
+        function showToast(order) {
+            const type = order.order_is_admin_created == 1 ? 'ADMIN' : 'CLIENT';
+            document.getElementById('toastMsg').innerHTML = `<b>#${order.order_id}</b><br>💰 ${order.order_total_amount} TND (${type})`;
+            document.getElementById('toast').style.top = '20px';
+            document.getElementById('notifSound').play().catch(()=>{});
+            if (navigator.vibrate) navigator.vibrate([500,200,500,200,500]);
+            if (Notification.permission === 'granted') {
+                new Notification('🔔 Nouvelle Commande ' + type, { body: order.order_total_amount + ' TND - #' + order.order_id, icon: 'https://app.speeddelivro.com/admin_icon.png', tag: order.order_id });
+            }
+        }
+
+        function hideToast() { document.getElementById('toast').style.top = '-150px'; }
+
+        function checkOrders() {
+            if (!radarOn) return;
             const bar = document.getElementById('statusBar');
-            bar.textContent = msg;
-            bar.className = hasPending ? 'has-pending' : '';
-        }
-
-        // ============ TOAST NOTIFICATION ============
-        function showVisualAlert(order) {
-            const toast = document.getElementById('customToast');
-            const type = order.order_is_admin_created == 1 ? "ADMIN" : "CLIENT";
-            const ageMin = Math.floor(order.age_seconds / 60);
             
-            document.getElementById('toastMsg').innerHTML = `
-                <b>#${order.order_id}</b><br>
-                💰 ${order.order_total_amount} TND<br>
-                <small>Type: ${type} | Il y a ${ageMin} min</small>
-            `;
-            
-            toast.style.top = "20px";
-            
-            // Vibration
-            if ("vibrate" in navigator) {
-                navigator.vibrate([500, 200, 500, 200, 500]);
-            }
-            
-            // Son
-            const sound = document.getElementById('notifSound');
-            sound.currentTime = 0;
-            sound.play().catch(e => console.log('Sound blocked'));
-            
-            // Notification système
-            if (Notification.permission === "granted") {
-                new Notification(`🔔 Commande ${type}`, {
-                    body: `${order.order_total_amount} TND - #${order.order_id}`,
-                    icon: CUSTOM_ICON,
-                    requireInteraction: true,
-                    tag: order.order_id
-                });
-            }
-        }
-
-        function dismissToast() {
-            document.getElementById('customToast').style.top = "-150px";
-        }
-
-        // ============ CHECK NEW ORDERS ============
-        function checkNewOrders() {
-            if (!isRadarActive) return;
-            
-            fetch(API_URL + '?t=' + Date.now())
+            fetch(API + '?t=' + Date.now())
                 .then(r => r.json())
                 .then(data => {
-                    if (data.success) {
-                        const pending = data.pending_orders || [];
-                        const count = data.pending_count || 0;
+                    if (!data.success) { bar.textContent = '⚠️ Erreur API'; return; }
+                    
+                    const pending = data.pending_orders || [];
+                    const latest = data.latest_order;
+                    
+                    // Méthode 1: Vérifier les commandes pending (status=0)
+                    if (pending.length > 0) {
+                        bar.textContent = '🔴 ' + pending.length + ' commande(s) en attente!';
+                        bar.style.background = '#e74c3c';
                         
-                        if (count > 0) {
-                            updateStatus(`🔴 ${count} commande(s) en attente!`, true);
-                            
-                            // Vérifier chaque commande pending
-                            pending.forEach(order => {
-                                // Ignorer si déjà alerté
-                                if (alertedOrders.includes(order.order_id)) return;
-                                
-                                // Ignorer si trop vieille (> 10 min)
-                                if (order.age_seconds > MAX_AGE_SECONDS) return;
-                                
-                                // NOUVELLE COMMANDE ! Alerter !
-                                console.log('🚨 New pending order:', order.order_id);
-                                showVisualAlert(order);
-                                
-                                // Marquer comme alerté
-                                alertedOrders.push(order.order_id);
-                                localStorage.setItem('alerted_orders', JSON.stringify(alertedOrders));
-                            });
-                        } else {
-                            updateStatus(`✅ Aucune commande en attente | ${data.server_time}`);
-                        }
+                        pending.forEach(order => {
+                            if (!alertedIds.includes(order.order_id) && order.age_seconds < 600) {
+                                showToast(order);
+                                alertedIds.push(order.order_id);
+                                localStorage.setItem('alertedIds', JSON.stringify(alertedIds.slice(-100)));
+                            }
+                        });
                     } else {
-                        updateStatus('⚠️ Erreur API');
+                        bar.style.background = 'rgba(0,0,0,0.8)';
+                        
+                        // Méthode 2 (backup): Vérifier si nouvelle commande récente
+                        if (latest && latest.age_seconds < 300 && !alertedIds.includes(latest.order_id)) {
+                            showToast(latest);
+                            alertedIds.push(latest.order_id);
+                            localStorage.setItem('alertedIds', JSON.stringify(alertedIds.slice(-100)));
+                            bar.textContent = '✅ Commande détectée | ' + data.server_time;
+                        } else {
+                            bar.textContent = '✅ RAS | ' + data.server_time;
+                        }
                     }
                 })
-                .catch(err => {
-                    updateStatus('❌ Connexion perdue');
-                    console.error('Fetch error:', err);
-                });
+                .catch(() => { bar.textContent = '❌ Connexion perdue'; });
         }
 
-        // ============ VISIBILITY CHANGE (Retour au premier plan) ============
-        document.addEventListener("visibilitychange", () => {
-            if (!document.hidden && isRadarActive) {
-                // Réactiver l'audio si nécessaire
-                if (audioContext && audioContext.state === 'suspended') {
-                    audioContext.resume();
-                }
-                // Check immédiat au retour
-                checkNewOrders();
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden && radarOn) {
+                if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+                checkOrders();
             }
         });
 
-        // ============ SERVICE WORKER ============
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js').catch(e => console.log('SW error:', e));
-        }
-
-        // ============ INIT ============
-        updateStatus('👆 Cliquez sur "Radar OFF" pour activer');
+        if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
     </script>
 </body>
 </html>
