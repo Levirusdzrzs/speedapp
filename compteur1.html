@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>SpeedDelivro – Lancement</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #0f0f0f;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      text-align: center;
+    }
+    .box {
+      max-width: 400px;
+    }
+    h1 { color: #ff2e2e; }
+    #countdown {
+      font-size: 2rem;
+      margin-top: 20px;
+      letter-spacing: 2px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="box">
+  <img src="logo.png" width="150" alt="SpeedDelivro">
+  <h1>Lancement dans</h1>
+  <div id="countdown">00:00:00</div>
+</div>
+
+<script>
+const launchDate = new Date("2026-03-01T12:00:00").getTime();
+
+const timer = setInterval(() => {
+  const now = new Date().getTime();
+  const distance = launchDate - now;
+
+  if (distance <= 0) {
+    clearInterval(timer);
+    window.location.href = "https://speeddelivro.com";
+  }
+
+  const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000*60*60));
+  const m = Math.floor((distance % (1000 * 60 * 60)) / (1000*60));
+  const s = Math.floor((distance % (1000 * 60)) / 1000);
+
+  document.getElementById("countdown").innerHTML =
+    `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+}, 1000);
+</script>
+
+</body>
+</html>
