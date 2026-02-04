@@ -12,13 +12,17 @@
     <meta property="og:description" content="L'application de livraison la plus rapide arrive bientot!">
     <meta property="og:image" content="https://app.speeddelivro.com/CLIENT.png">
 
-    <link rel="icon" href="logospeeddelivro.png" type="image/png">
+    <link rel="icon" href="appicon.png" type="image/png">
 
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+        }
+
+        html, body {
+            min-height: 100%;
         }
 
         body {
@@ -28,14 +32,16 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            overflow: hidden;
+            overflow-x: hidden;
+            overflow-y: auto;
             position: relative;
+            padding: 20px 0;
         }
 
         /* Pattern de points comme sur les visuels SpeedDelivro */
         body::before {
             content: '';
-            position: absolute;
+            position: fixed;
             top: 0;
             right: 0;
             width: 50%;
@@ -43,20 +49,6 @@
             background-image: radial-gradient(circle, rgba(255,255,255,0.1) 2px, transparent 2px);
             background-size: 20px 20px;
             pointer-events: none;
-        }
-
-        .video-background {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            min-width: 100%;
-            min-height: 100%;
-            width: auto;
-            height: auto;
-            z-index: -1;
-            opacity: 0.3;
-            object-fit: cover;
         }
 
         .container {
@@ -74,13 +66,14 @@
         }
 
         .logo-container {
-            margin-bottom: 30px;
+            margin-bottom: 25px;
         }
 
         .logo {
-            width: 180px;
-            height: auto;
-            filter: drop-shadow(0 4px 20px rgba(249, 115, 22, 0.4));
+            width: 120px;
+            height: 120px;
+            border-radius: 26px;
+            box-shadow: 0 10px 40px rgba(0, 25, 255, 0.3);
             animation: float 3s ease-in-out infinite;
         }
 
@@ -91,17 +84,17 @@
 
         .tagline {
             color: rgba(255, 255, 255, 0.8);
-            font-size: 14px;
+            font-size: 13px;
             letter-spacing: 2px;
             text-transform: uppercase;
-            margin-top: 10px;
+            margin-top: 12px;
         }
 
         .title {
             color: #fff;
-            font-size: 28px;
+            font-size: 26px;
             font-weight: 700;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
 
         .title span {
@@ -110,8 +103,8 @@
 
         .subtitle {
             color: rgba(255, 255, 255, 0.7);
-            font-size: 16px;
-            margin-bottom: 40px;
+            font-size: 15px;
+            margin-bottom: 30px;
         }
 
         /* Compteur */
@@ -119,8 +112,8 @@
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
             border-radius: 20px;
-            padding: 30px 20px;
-            margin-bottom: 40px;
+            padding: 25px 15px;
+            margin-bottom: 30px;
             border: 1px solid rgba(255, 255, 255, 0.2);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
         }
@@ -128,14 +121,14 @@
         .countdown {
             display: flex;
             justify-content: center;
-            gap: 10px;
+            gap: 8px;
         }
 
         .time-block {
             background: linear-gradient(180deg, #2563eb 0%, #1d4ed8 100%);
             border-radius: 12px;
-            padding: 15px 12px;
-            min-width: 70px;
+            padding: 12px 10px;
+            min-width: 60px;
             box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
             position: relative;
             overflow: hidden;
@@ -152,7 +145,7 @@
         }
 
         .time-number {
-            font-size: 36px;
+            font-size: 28px;
             font-weight: 700;
             color: #fff;
             line-height: 1;
@@ -160,15 +153,15 @@
         }
 
         .time-label {
-            font-size: 11px;
+            font-size: 10px;
             color: rgba(255, 255, 255, 0.8);
             text-transform: uppercase;
             letter-spacing: 1px;
-            margin-top: 8px;
+            margin-top: 6px;
         }
 
         .separator {
-            font-size: 36px;
+            font-size: 28px;
             color: #f97316;
             font-weight: bold;
             align-self: center;
@@ -182,8 +175,8 @@
 
         .launch-date {
             color: #f97316;
-            font-size: 14px;
-            margin-top: 20px;
+            font-size: 13px;
+            margin-top: 15px;
             font-weight: 600;
         }
 
@@ -191,59 +184,30 @@
         .store-buttons {
             display: flex;
             flex-direction: column;
-            gap: 15px;
-            align-items: center;
-        }
-
-        .store-btn {
-            display: flex;
-            align-items: center;
             gap: 12px;
-            background: #fff;
-            color: #1a1a2e;
-            padding: 14px 30px;
-            border-radius: 12px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 15px;
-            width: 260px;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            align-items: center;
         }
 
-        .store-btn:hover {
+        .store-button {
+            display: inline-block;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .store-button:hover {
             transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
         }
 
-        .store-btn.android {
-            background: linear-gradient(135deg, #34a853 0%, #0f9d58 100%);
-            color: #fff;
+        .store-button:active {
+            transform: translateY(-1px);
         }
 
-        .store-btn.ios {
-            background: linear-gradient(135deg, #333 0%, #000 100%);
-            color: #fff;
-        }
-
-        .store-icon {
-            width: 28px;
-            height: 28px;
-        }
-
-        .store-text {
-            text-align: left;
-        }
-
-        .store-text small {
-            font-size: 10px;
-            opacity: 0.8;
+        .store-button img {
             display: block;
-            font-weight: 400;
-        }
-
-        .store-text span {
-            font-size: 16px;
+            width: 200px;
+            height: auto;
         }
 
         /* Message de lancement */
@@ -253,8 +217,8 @@
 
         .launched h2 {
             color: #fff;
-            font-size: 32px;
-            margin-bottom: 20px;
+            font-size: 28px;
+            margin-bottom: 15px;
         }
 
         .launched h2 span {
@@ -263,31 +227,34 @@
 
         .launched p {
             color: rgba(255, 255, 255, 0.8);
-            margin-bottom: 30px;
+            margin-bottom: 25px;
         }
 
         /* Responsive */
-        @media (max-width: 400px) {
+        @media (max-width: 380px) {
             .time-block {
-                min-width: 60px;
-                padding: 12px 8px;
+                min-width: 55px;
+                padding: 10px 8px;
             }
 
             .time-number {
-                font-size: 28px;
+                font-size: 24px;
             }
 
             .countdown {
-                gap: 6px;
+                gap: 5px;
             }
 
             .separator {
-                font-size: 28px;
+                font-size: 24px;
             }
 
-            .store-btn {
-                width: 240px;
-                padding: 12px 24px;
+            .store-button img {
+                width: 180px;
+            }
+
+            .title {
+                font-size: 22px;
             }
         }
 
@@ -308,15 +275,9 @@
     </style>
 </head>
 <body>
-    <!-- Video de fond (commentee temporairement)
-    <video class="video-background" autoplay muted loop playsinline>
-        <source src="compteur-vid.mp4" type="video/mp4">
-    </video>
-    -->
-
     <div class="container">
         <div class="logo-container">
-            <img src="logospeeddelivro.png" alt="SpeedDelivro" class="logo">
+            <img src="appicon.png" alt="SpeedDelivro" class="logo">
             <p class="tagline">La ou la vitesse rencontre la fiabilite</p>
         </div>
 
@@ -351,23 +312,11 @@
             </div>
 
             <div class="store-buttons">
-                <a href="https://play.google.com/store/apps/details?id=com.speed.delivro.buyer" class="store-btn android" id="playstore-btn">
-                    <svg class="store-icon" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M3,20.5V3.5C3,2.91 3.34,2.39 3.84,2.15L13.69,12L3.84,21.85C3.34,21.6 3,21.09 3,20.5M16.81,15.12L6.05,21.34L14.54,12.85L16.81,15.12M20.16,10.81C20.5,11.08 20.75,11.5 20.75,12C20.75,12.5 20.5,12.92 20.16,13.19L17.89,14.5L15.39,12L17.89,9.5L20.16,10.81M6.05,2.66L16.81,8.88L14.54,11.15L6.05,2.66Z"/>
-                    </svg>
-                    <div class="store-text">
-                        <small>Bientot sur</small>
-                        <span>Google Play</span>
-                    </div>
+                <a href="https://play.google.com/store/apps/details?id=com.speed.delivro.buyer" target="_blank" class="store-button">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/8/8e/Google_Play_Store_badge_FR.svg" alt="Telecharger sur Google Play">
                 </a>
-                <a href="https://apps.apple.com/fr/app/speeddelivro/id6747889248" class="store-btn ios" id="appstore-btn">
-                    <svg class="store-icon" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M18.71,19.5C17.88,20.74 17,21.95 15.66,21.97C14.32,22 13.89,21.18 12.37,21.18C10.84,21.18 10.37,21.95 9.1,22C7.79,22.05 6.8,20.68 5.96,19.47C4.25,17 2.94,12.45 4.7,9.39C5.57,7.87 7.13,6.91 8.82,6.88C10.1,6.86 11.32,7.75 12.11,7.75C12.89,7.75 14.37,6.68 15.92,6.84C16.57,6.87 18.39,7.1 19.56,8.82C19.47,8.88 17.39,10.1 17.41,12.63C17.44,15.65 20.06,16.66 20.09,16.67C20.06,16.74 19.67,18.11 18.71,19.5M13,3.5C13.73,2.67 14.94,2.04 15.94,2C16.07,3.17 15.6,4.35 14.9,5.19C14.21,6.04 13.07,6.7 11.95,6.61C11.8,5.46 12.36,4.26 13,3.5Z"/>
-                    </svg>
-                    <div class="store-text">
-                        <small>Bientot sur</small>
-                        <span>App Store</span>
-                    </div>
+                <a href="https://apps.apple.com/tn/app/speeddelivro/id6747889248" target="_blank" class="store-button">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/40/Download_on_the_App_Store_Badge_FRCA_RGB_blk.svg/1280px-Download_on_the_App_Store_Badge_FRCA_RGB_blk.svg.png" alt="Telecharger sur App Store">
                 </a>
             </div>
         </div>
@@ -378,23 +327,11 @@
             <p>SpeedDelivro est maintenant disponible. Telechargez l'application!</p>
 
             <div class="store-buttons">
-                <a href="https://play.google.com/store/apps/details?id=com.speed.delivro.buyer" class="store-btn android" id="playstore-live">
-                    <svg class="store-icon" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M3,20.5V3.5C3,2.91 3.34,2.39 3.84,2.15L13.69,12L3.84,21.85C3.34,21.6 3,21.09 3,20.5M16.81,15.12L6.05,21.34L14.54,12.85L16.81,15.12M20.16,10.81C20.5,11.08 20.75,11.5 20.75,12C20.75,12.5 20.5,12.92 20.16,13.19L17.89,14.5L15.39,12L17.89,9.5L20.16,10.81M6.05,2.66L16.81,8.88L14.54,11.15L6.05,2.66Z"/>
-                    </svg>
-                    <div class="store-text">
-                        <small>Telecharger sur</small>
-                        <span>Google Play</span>
-                    </div>
+                <a href="https://play.google.com/store/apps/details?id=com.speed.delivro.buyer" target="_blank" class="store-button">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/8/8e/Google_Play_Store_badge_FR.svg" alt="Telecharger sur Google Play">
                 </a>
-                <a href="https://apps.apple.com/fr/app/speeddelivro/id6747889248" class="store-btn ios" id="appstore-live">
-                    <svg class="store-icon" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M18.71,19.5C17.88,20.74 17,21.95 15.66,21.97C14.32,22 13.89,21.18 12.37,21.18C10.84,21.18 10.37,21.95 9.1,22C7.79,22.05 6.8,20.68 5.96,19.47C4.25,17 2.94,12.45 4.7,9.39C5.57,7.87 7.13,6.91 8.82,6.88C10.1,6.86 11.32,7.75 12.11,7.75C12.89,7.75 14.37,6.68 15.92,6.84C16.57,6.87 18.39,7.1 19.56,8.82C19.47,8.88 17.39,10.1 17.41,12.63C17.44,15.65 20.06,16.66 20.09,16.67C20.06,16.74 19.67,18.11 18.71,19.5M13,3.5C13.73,2.67 14.94,2.04 15.94,2C16.07,3.17 15.6,4.35 14.9,5.19C14.21,6.04 13.07,6.7 11.95,6.61C11.8,5.46 12.36,4.26 13,3.5Z"/>
-                    </svg>
-                    <div class="store-text">
-                        <small>Telecharger sur</small>
-                        <span>App Store</span>
-                    </div>
+                <a href="https://apps.apple.com/tn/app/speeddelivro/id6747889248" target="_blank" class="store-button">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/40/Download_on_the_App_Store_Badge_FRCA_RGB_blk.svg/1280px-Download_on_the_App_Store_Badge_FRCA_RGB_blk.svg.png" alt="Telecharger sur App Store">
                 </a>
             </div>
         </div>
@@ -406,7 +343,7 @@
 
         // URLs des stores
         const PLAY_STORE_URL = 'https://play.google.com/store/apps/details?id=com.speed.delivro.buyer';
-        const APP_STORE_URL = 'https://apps.apple.com/fr/app/speeddelivro/id6747889248';
+        const APP_STORE_URL = 'https://apps.apple.com/tn/app/speeddelivro/id6747889248';
 
         // Detection du type d'appareil
         function getMobileOS() {
