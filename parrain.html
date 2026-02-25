@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Code Parrain - SpeedDelivro</title>
+    <link rel="icon" type="image/png" href="https://speeddelivro.com/images/favicon.png">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #0019FF 0%, #FFA100 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 24px;
+            padding: 40px 30px;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+        
+        .logo {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            color: #0019FF;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        
+        label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        .input-wrapper {
+            display: flex;
+            align-items: center;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: border-color 0.3s;
+        }
+        
+        .input-wrapper:focus-within {
+            border-color: #0019FF;
+        }
+        
+        .country-code {
+            background: #f5f5f5;
+            padding: 14px 12px;
+            color: #333;
+            font-weight: 600;
+            border-right: 2px solid #e0e0e0;
+        }
+        
+        input {
+            flex: 1;
+            border: none;
+            padding: 14px;
+            font-size: 16px;
+            outline: none;
+            width: 100%;
+        }
+        
+        input::placeholder {
+            color: #aaa;
+        }
+        
+        .code-input {
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 14px;
+            font-size: 18px;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 600;
+            transition: border-color 0.3s;
+        }
+        
+        .code-input:focus {
+            border-color: #0019FF;
+            outline: none;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+        
+        .btn-primary {
+            background: #0019FF;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #0014CC;
+            transform: translateY(-2px);
+        }
+        
+        .btn-primary:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .btn-secondary {
+            background: #FFA100;
+            color: white;
+            margin-top: 15px;
+        }
+        
+        .btn-secondary:hover {
+            background: #E69000;
+        }
+        
+        .message {
+            padding: 15px;
+            border-radius: 12px;
+            margin-top: 20px;
+            font-size: 14px;
+            display: none;
+        }
+        
+        .message.success {
+            background: #E8F5E9;
+            color: #2E7D32;
+            border: 1px solid #A5D6A7;
+        }
+        
+        .message.error {
+            background: #FFEBEE;
+            color: #C62828;
+            border: 1px solid #EF9A9A;
+        }
+        
+        .coupon-box {
+            background: linear-gradient(135deg, #0019FF, #0014CC);
+            color: white;
+            padding: 20px;
+            border-radius: 16px;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .coupon-box h3 {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 8px;
+        }
+        
+        .coupon-code {
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: 3px;
+            margin: 10px 0;
+        }
+        
+        .coupon-details {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+        
+        .loader {
+            display: none;
+            width: 24px;
+            height: 24px;
+            border: 3px solid #fff;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .footer {
+            margin-top: 30px;
+            color: #999;
+            font-size: 12px;
+        }
+        
+        .footer a {
+            color: #0019FF;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img src="https://speeddelivro.com/images/logo.png" alt="SpeedDelivro" class="logo" onerror="this.style.display='none'">
+        
+        <h1>🎁 Code Parrain</h1>
+        <p class="subtitle">Entrez votre code parrain pour bénéficier d'une réduction sur votre première commande</p>
+        
+        <form id="parrainForm">
+            <div class="form-group">
+                <label>📱 Votre numéro de téléphone</label>
+                <div class="input-wrapper">
+                    <span class="country-code">+216</span>
+                    <input type="tel" id="phone" placeholder="XX XXX XXX" maxlength="8" required pattern="[0-9]{8}">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>🎫 Code Parrain</label>
+                <input type="text" id="code" class="code-input" placeholder="AFF212" maxlength="25" required>
+            </div>
+            
+            <button type="submit" class="btn btn-primary" id="submitBtn">
+                <span id="btnText">Activer mon code</span>
+                <div class="loader" id="loader"></div>
+            </button>
+        </form>
+        
+        <div class="message" id="message"></div>
+        
+        <div class="coupon-box" id="couponBox">
+            <h3>🎉 Votre coupon de bienvenue</h3>
+            <div class="coupon-code" id="couponCode"></div>
+            <div class="coupon-details">
+                <span id="couponDiscount"></span> de réduction<br>
+                Valable jusqu'au <span id="couponExpiry"></span>
+            </div>
+        </div>
+        
+        <button class="btn btn-secondary" id="openAppBtn" style="display:none;" onclick="openApp()">
+            📲 Ouvrir l'application
+        </button>
+        
+        <div class="footer">
+            <p>Pas encore inscrit ? <a href="https://speeddelivro.com/open" target="_blank">Télécharger l'app</a></p>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'https://speeddelivro.com/api-parrain.php';
+        
+        // Formater le numéro de téléphone
+        document.getElementById('phone').addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^0-9]/g, '').slice(0, 8);
+        });
+        
+        // Formater le code en majuscules
+        document.getElementById('code').addEventListener('input', function(e) {
+            this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+        });
+        
+        // Soumission du formulaire
+        document.getElementById('parrainForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const phone = document.getElementById('phone').value.trim();
+            const code = document.getElementById('code').value.trim();
+            const submitBtn = document.getElementById('submitBtn');
+            const btnText = document.getElementById('btnText');
+            const loader = document.getElementById('loader');
+            const message = document.getElementById('message');
+            const couponBox = document.getElementById('couponBox');
+            const openAppBtn = document.getElementById('openAppBtn');
+            
+            // Validation
+            if (phone.length !== 8) {
+                showMessage('Veuillez entrer un numéro de téléphone valide (8 chiffres)', 'error');
+                return;
+            }
+            
+            if (code.length < 3) {
+                showMessage('Veuillez entrer un code parrain valide', 'error');
+                return;
+            }
+            
+            // Désactiver le bouton et afficher le loader
+            submitBtn.disabled = true;
+            btnText.style.display = 'none';
+            loader.style.display = 'block';
+            message.style.display = 'none';
+            couponBox.style.display = 'none';
+            
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        action: 'link_affiliate',
+                        phone: phone,
+                        code: code
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showMessage(data.message, 'success');
+                    
+                    // Afficher le coupon
+                    if (data.coupon_code) {
+                        document.getElementById('couponCode').textContent = data.coupon_code;
+                        document.getElementById('couponDiscount').textContent = data.discount;
+                        document.getElementById('couponExpiry').textContent = formatDate(data.valid_until);
+                        couponBox.style.display = 'block';
+                    }
+                    
+                    // Afficher le bouton pour ouvrir l'app
+                    openAppBtn.style.display = 'block';
+                    
+                    // Cacher le formulaire
+                    document.getElementById('parrainForm').style.display = 'none';
+                } else {
+                    showMessage(data.message || 'Une erreur est survenue', 'error');
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                showMessage('Erreur de connexion. Veuillez réessayer.', 'error');
+            } finally {
+                submitBtn.disabled = false;
+                btnText.style.display = 'inline';
+                loader.style.display = 'none';
+            }
+        });
+        
+        function showMessage(text, type) {
+            const message = document.getElementById('message');
+            message.textContent = text;
+            message.className = 'message ' + type;
+            message.style.display = 'block';
+        }
+        
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+        }
+        
+        function openApp() {
+            const ua = navigator.userAgent;
+            if (/iPad|iPhone|iPod/.test(ua)) {
+                window.location.href = 'speeddelivro://';
+                setTimeout(() => {
+                    window.location.href = 'https://apps.apple.com/tn/app/speeddelivro/id6747889248';
+                }, 1500);
+            } else if (/android/i.test(ua)) {
+                window.location.href = 'intent://open#Intent;scheme=speeddelivro;package=com.speed.delivro.buyer;end';
+            } else {
+                window.location.href = 'https://speeddelivro.com';
+            }
+        }
+        
+        // Pré-remplir le code si présent dans l'URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const refCode = urlParams.get('code') || urlParams.get('ref');
+        if (refCode) {
+            document.getElementById('code').value = refCode.toUpperCase();
+        }
+    </script>
+</body>
+</html>
