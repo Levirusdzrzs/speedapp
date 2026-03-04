@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Speed Ambassadeur - SpeedDelivro</title>
+    <link rel="icon" href="https://speeddelivro.com/images/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1a56db;
+            --primary-dark: #1440a8;
+            --primary-light: #e8effd;
+            --accent: #f59e0b;
+            --accent-dark: #d97706;
+            --success: #10b981;
+            --danger: #ef4444;
+            --bg: #f0f4ff;
+            --card: #ffffff;
+            --text: #1e293b;
+            --text-light: #64748b;
+            --border: #e2e8f0;
+            --radius: 16px;
+            --shadow: 0 4px 24px rgba(26,86,219,0.08);
+            --shadow-lg: 0 12px 40px rgba(26,86,219,0.12);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* === HEADER === */
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, #2563eb 50%, #3b82f6 100%);
+            padding: 20px 16px 28px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0; right: 0;
+            height: 24px;
+            background: var(--bg);
+            border-radius: 24px 24px 0 0;
+        }
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .logo { height: 32px; filter: brightness(10); }
+        .lang-switch {
+            display: flex;
+            gap: 4px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 8px;
+            padding: 3px;
+        }
+        .lang-btn {
+            border: none;
+            background: transparent;
+            color: rgba(255,255,255,0.7);
+            font-size: 13px;
+            font-family: 'Tajawal', sans-serif;
+            font-weight: 500;
+            padding: 4px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .lang-btn.active {
+            background: rgba(255,255,255,0.25);
+            color: #fff;
+        }
+        .header h1 {
+            color: #fff;
+            font-size: 22px;
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
+        .header p {
+            color: rgba(255,255,255,0.8);
+            font-size: 14px;
+            font-weight: 400;
+        }
+        .limited-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+            color: #fff;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 20px;
+            margin-top: 8px;
+            animation: pulse-badge 2s infinite;
+        }
+        @keyframes pulse-badge {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        /* === TABS === */
+        .tabs {
+            display: flex;
+            margin: -12px 16px 16px;
+            background: var(--card);
+            border-radius: 12px;
+            padding: 4px;
+            box-shadow: var(--shadow);
+            position: relative;
+            z-index: 2;
+        }
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 12px 8px;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-light);
+            background: transparent;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Tajawal', sans-serif;
+        }
+        .tab.active {
+            background: var(--primary);
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(26,86,219,0.3);
+        }
+        .tab-icon { font-size: 18px; display: block; margin-bottom: 2px; }
+
+        /* === CONTENT === */
+        .content { padding: 0 16px 100px; }
+        .panel { display: none; }
+        .panel.active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* === CARDS === */
+        .card {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: var(--shadow);
+        }
+        .card-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* === SPONSOR PANEL === */
+        .code-box {
+            background: linear-gradient(135deg, var(--primary-light), #dbeafe);
+            border: 2px dashed var(--primary);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            position: relative;
+        }
+        .code-label { font-size: 13px; color: var(--text-light); margin-bottom: 8px; }
+        .code-value {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--primary);
+            letter-spacing: 3px;
+            margin-bottom: 12px;
+        }
+        .code-actions { display: flex; gap: 8px; }
+        .btn {
+            flex: 1;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 700;
+            font-family: 'Tajawal', sans-serif;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .btn:active { transform: scale(0.97); }
+        .btn-copy {
+            background: var(--primary);
+            color: #fff;
+        }
+        .btn-whatsapp {
+            background: #25d366;
+            color: #fff;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .stat-card {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            box-shadow: var(--shadow);
+        }
+        .stat-icon { font-size: 24px; margin-bottom: 6px; }
+        .stat-value {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--primary);
+        }
+        .stat-value.success { color: var(--success); }
+        .stat-value.accent { color: var(--accent); }
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-top: 2px;
+        }
+
+        /* N2 Progress */
+        .n2-box {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+        }
+        .n2-box.locked { background: linear-gradient(135deg, #f1f5f9, #e2e8f0); }
+        .n2-title { font-size: 14px; font-weight: 700; margin-bottom: 8px; }
+        .n2-status { font-size: 13px; color: var(--text-light); }
+
+        /* Filleul list */
+        .filleul-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .filleul-item:last-child { border-bottom: none; }
+        .filleul-avatar {
+            width: 40px; height: 40px;
+            background: var(--primary-light);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        .filleul-info { flex: 1; }
+        .filleul-name { font-size: 14px; font-weight: 700; }
+        .filleul-progress { font-size: 12px; color: var(--text-light); }
+        .progress-bar {
+            height: 6px;
+            background: var(--border);
+            border-radius: 3px;
+            margin-top: 4px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--success));
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+
+        /* History */
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .history-item:last-child { border-bottom: none; }
+        .history-type { font-size: 13px; font-weight: 600; }
+        .history-detail { font-size: 11px; color: var(--text-light); }
+        .history-amount {
+            font-size: 15px;
+            font-weight: 700;
+        }
+        .history-amount.credit { color: var(--success); }
+        .history-amount.pending { color: var(--accent); }
+        .history-amount.cancelled { color: var(--danger); text-decoration: line-through; }
+        .history-status {
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+        .status-pending { background: #fef3c7; color: #92400e; }
+        .status-validated { background: #d1fae5; color: #065f46; }
+        .status-cancelled { background: #fee2e2; color: #991b1b; }
+
+        /* === FILLEUL PANEL === */
+        .form-group {
+            margin-bottom: 16px;
+        }
+        .form-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-light);
+            margin-bottom: 6px;
+            display: block;
+        }
+        .input-group {
+            display: flex;
+            align-items: center;
+            background: #f8fafc;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: border-color 0.2s;
+        }
+        .input-group:focus-within { border-color: var(--primary); }
+        .input-prefix {
+            padding: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-light);
+            background: var(--border);
+            white-space: nowrap;
+        }
+        .input-group input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            padding: 12px;
+            font-size: 16px;
+            font-family: 'Tajawal', sans-serif;
+            outline: none;
+            color: var(--text);
+        }
+        .input-group input::placeholder { color: #94a3b8; }
+        .input-icon { padding: 12px; font-size: 18px; }
+        .code-check {
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            margin-right: 8px;
+        }
+        .code-check.valid { display: flex; background: #d1fae5; color: #065f46; }
+        .code-check.invalid { display: flex; background: #fee2e2; color: #991b1b; }
+
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            font-family: 'Tajawal', sans-serif;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-submit:active { transform: scale(0.98); }
+        .btn-submit:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        /* Success box */
+        .success-box {
+            display: none;
+            background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+            border-radius: var(--radius);
+            padding: 24px;
+            text-align: center;
+        }
+        .success-box.show { display: block; animation: fadeIn 0.4s ease; }
+        .success-icon { font-size: 48px; margin-bottom: 8px; }
+        .success-title { font-size: 18px; font-weight: 800; color: #065f46; margin-bottom: 8px; }
+        .success-msg { font-size: 14px; color: #047857; margin-bottom: 16px; }
+        .coupon-display {
+            background: #fff;
+            border: 2px dashed #10b981;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+        .coupon-code {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--primary);
+            letter-spacing: 2px;
+        }
+        .coupon-details { font-size: 13px; color: var(--text-light); margin-top: 4px; }
+        .your-code-box {
+            background: var(--primary-light);
+            border-radius: 10px;
+            padding: 12px;
+            margin-top: 12px;
+        }
+        .your-code-label { font-size: 12px; color: var(--text-light); }
+        .your-code-value { font-size: 20px; font-weight: 800; color: var(--primary); letter-spacing: 2px; }
+
+        .btn-open-app {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 12px 24px;
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 700;
+            text-decoration: none;
+            margin-top: 12px;
+        }
+
+        /* FOMO Banner */
+        .fomo-banner {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 600;
+            color: #92400e;
+            display: none;
+        }
+        .fomo-banner.show { display: block; animation: fadeIn 0.5s ease; }
+        .fomo-amount { font-weight: 800; color: var(--accent-dark); }
+
+        /* Error */
+        .error-msg {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 10px 16px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            display: none;
+            text-align: center;
+        }
+        .error-msg.show { display: block; animation: fadeIn 0.3s; }
+
+        /* Loading */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+        .loading.show { display: block; }
+        .spinner {
+            width: 36px; height: 36px;
+            border: 3px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 12px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 24px;
+            color: var(--text-light);
+        }
+        .empty-icon { font-size: 40px; margin-bottom: 8px; }
+        .empty-text { font-size: 14px; }
+
+        /* RTL */
+        html[dir="rtl"] body { direction: rtl; }
+        html[dir="rtl"] .input-prefix { order: 0; }
+        html[dir="rtl"] .code-actions { flex-direction: row-reverse; }
+    </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+    <div class="header-top">
+        <img src="https://speeddelivro.com/images/logo.png" class="logo" alt="SpeedDelivro">
+        <div class="lang-switch">
+            <button class="lang-btn active" onclick="setLang('fr')">FR</button>
+            <button class="lang-btn" onclick="setLang('ar')">عربي</button>
+            <button class="lang-btn" onclick="setLang('en')">EN</button>
+        </div>
+    </div>
+    <h1 id="headerTitle">Speed Ambassadeur</h1>
+    <p id="headerSub">Parrainez vos amis, gagnez des récompenses</p>
+    <span class="limited-badge">⏳ <span id="limitedText">Édition Limitée 2026</span></span>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+    <button class="tab active" onclick="switchTab('sponsor')" id="tabSponsor">
+        <span class="tab-icon">👑</span>
+        <span id="tabSponsorText">Espace Parrain</span>
+    </button>
+    <button class="tab" onclick="switchTab('sponsored')" id="tabSponsored">
+        <span class="tab-icon">🎁</span>
+        <span id="tabSponsoredText">J'ai un code</span>
+    </button>
+</div>
+
+<!-- CONTENT -->
+<div class="content">
+
+    <!-- ========== PANEL PARRAIN ========== -->
+    <div class="panel active" id="panelSponsor">
+
+        <!-- Login parrain -->
+        <div id="sponsorLogin" class="card">
+            <div class="card-title">📱 <span id="loginTitle">Accéder à mon espace parrain</span></div>
+            <div class="form-group">
+                <div class="input-group">
+                    <span class="input-prefix">+216</span>
+                    <input type="tel" id="sponsorPhone" maxlength="8" inputmode="numeric" pattern="[0-9]*">
+                </div>
+            </div>
+            <button class="btn-submit" onclick="loadDashboard()" id="loginBtn">Accéder</button>
+            <div class="error-msg" id="loginError"></div>
+        </div>
+
+        <!-- Dashboard (hidden until login) -->
+        <div id="sponsorDashboard" style="display:none;">
+
+            <!-- Code + Partage -->
+            <div class="card">
+                <div class="card-title">🔗 <span id="codeTitle">Votre code parrain</span></div>
+                <div class="code-box">
+                    <div class="code-label" id="codeLabel">Partagez ce code avec vos amis</div>
+                    <div class="code-value" id="myCode">---</div>
+                    <div class="code-actions">
+                        <button class="btn btn-copy" onclick="copyCode()">
+                            📋 <span id="copyText">Copier</span>
+                        </button>
+                        <button class="btn btn-whatsapp" onclick="shareWhatsApp()">
+                            📲 WhatsApp
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-value" id="statFilleuls">0</div>
+                    <div class="stat-label" id="statFilleulsLabel">Filleuls</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">✅</div>
+                    <div class="stat-value success" id="statEarnings">0</div>
+                    <div class="stat-label" id="statEarningsLabel">Gains validés (DT)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">⏳</div>
+                    <div class="stat-value accent" id="statPending">0</div>
+                    <div class="stat-label" id="statPendingLabel">En attente (DT)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📊</div>
+                    <div class="stat-value" id="statPhase">1</div>
+                    <div class="stat-label" id="statPhaseLabel">Phase actuelle</div>
+                </div>
+            </div>
+
+            <!-- N2 Progress -->
+            <div class="card">
+                <div id="n2Box" class="n2-box locked">
+                    <div class="n2-title" id="n2Title">🔒 Niveau 2 verrouillé</div>
+                    <div class="n2-status" id="n2Status">Parrainez 3 amis actifs pour débloquer</div>
+                </div>
+            </div>
+
+            <!-- Filleuls -->
+            <div class="card">
+                <div class="card-title">👥 <span id="filleulsTitle">Mes filleuls</span></div>
+                <div id="filleulsList"></div>
+            </div>
+
+            <!-- Historique -->
+            <div class="card">
+                <div class="card-title">📜 <span id="historyTitle">Historique</span></div>
+                <div id="historyList"></div>
+            </div>
+        </div>
+
+        <div class="loading" id="sponsorLoading">
+            <div class="spinner"></div>
+            <div id="loadingText">Chargement...</div>
+        </div>
+    </div>
+
+    <!-- ========== PANEL FILLEUL ========== -->
+    <div class="panel" id="panelSponsored">
+
+        <!-- FOMO Banner -->
+        <div class="fomo-banner" id="fomoBanner">
+            🔥 <span id="fomoText">Déjà <span class="fomo-amount" id="fomoAmount">0</span> DT distribués aux parrains !</span>
+        </div>
+
+        <!-- Formulaire -->
+        <div id="sponsoredForm">
+            <div class="card">
+                <div class="card-title">📱 <span id="phoneTitle">Votre numéro de téléphone</span></div>
+                <div class="form-group">
+                    <div class="input-group">
+                        <span class="input-prefix">+216</span>
+                        <input type="tel" id="filleulPhone" maxlength="8" inputmode="numeric" pattern="[0-9]*">
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">🎫 <span id="codeInputTitle">Code parrain</span></div>
+                <div class="form-group">
+                    <div class="input-group">
+                        <span class="input-icon">🎫</span>
+                        <input type="text" id="filleulCode" maxlength="20" autocapitalize="characters" oninput="checkCodeLive(this)">
+                        <div class="code-check" id="codeCheckIcon"></div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn-submit" onclick="submitLink()" id="submitBtn" disabled>
+                <span id="submitText">Activer mon code</span>
+            </button>
+            <div class="error-msg" id="linkError"></div>
+        </div>
+
+        <!-- Success -->
+        <div class="success-box" id="successBox">
+            <div class="success-icon">🎉</div>
+            <div class="success-title" id="successTitle">Félicitations !</div>
+            <div class="success-msg" id="successMsg"></div>
+            <div class="coupon-display">
+                <div class="coupon-code" id="successCoupon">---</div>
+                <div class="coupon-details" id="successCouponDetails"></div>
+            </div>
+            <div class="your-code-box">
+                <div class="your-code-label" id="yourCodeLabel">Votre code parrain personnel</div>
+                <div class="your-code-value" id="yourCodeValue">---</div>
+                <div style="font-size:12px;color:var(--text-light);margin-top:4px;" id="yourCodeHint">Partagez-le pour gagner des récompenses</div>
+            </div>
+            <a href="https://speeddelivro.com/open" class="btn-open-app" id="openAppBtn">📲 <span id="openAppText">Ouvrir l'application</span></a>
+        </div>
+    </div>
+</div>
+
+<script>
+const API = 'https://speeddelivro.com/api-parrain.php';
+
+// === TRADUCTIONS ===
+const T = {
+    fr: {
+        headerTitle: 'Speed Ambassadeur',
+        headerSub: 'Parrainez vos amis, gagnez des récompenses',
+        limitedText: 'Édition Limitée 2026',
+        tabSponsorText: 'Espace Parrain',
+        tabSponsoredText: "J'ai un code",
+        loginTitle: 'Accéder à mon espace parrain',
+        loginBtn: 'Accéder',
+        codeTitle: 'Votre code parrain',
+        codeLabel: 'Partagez ce code avec vos amis',
+        copyText: 'Copier',
+        statFilleulsLabel: 'Filleuls',
+        statEarningsLabel: 'Gains validés (DT)',
+        statPendingLabel: 'En attente (DT)',
+        statPhaseLabel: 'Phase actuelle',
+        n2TitleLocked: '🔒 Niveau 2 verrouillé',
+        n2StatusLocked: 'Parrainez 3 amis actifs pour débloquer',
+        n2TitleUnlocked: '🏆 Niveau 2 débloqué !',
+        n2StatusUnlocked: 'Vous gagnez aussi sur les filleuls de vos filleuls',
+        filleulsTitle: 'Mes filleuls',
+        historyTitle: 'Historique',
+        loadingText: 'Chargement...',
+        phoneTitle: 'Votre numéro de téléphone',
+        codeInputTitle: 'Code parrain',
+        submitText: 'Activer mon code',
+        successTitle: 'Félicitations !',
+        yourCodeLabel: 'Votre code parrain personnel',
+        yourCodeHint: 'Partagez-le pour gagner des récompenses',
+        openAppText: "Ouvrir l'application",
+        fomoText: 'Déjà {amount} DT distribués aux parrains !',
+        errPhone: 'Numéro non trouvé',
+        errCode: 'Code parrain invalide',
+        errAlready: 'Vous avez déjà un parrain',
+        errSelf: 'Tu ne peux pas utiliser ton propre code',
+        copied: 'Copié !',
+        shareMsg: "🎁 Utilise mon code {code} sur SpeedDelivro et profite d'une réduction ! Télécharge l'app : https://speeddelivro.com/open",
+        cmdOf: 'cmd sur',
+        prime: 'Prime',
+        commission: 'Commission',
+        emptyFilleuls: 'Pas encore de filleuls',
+        emptyHistory: 'Aucune transaction',
+        phonePlaceholder: 'Votre numéro',
+        codePlaceholder: 'Ex: SPD123',
+        validUntil: 'Valable jusqu\'au',
+        discount: 'de réduction'
+    },
+    ar: {
+        headerTitle: 'سبيد أمباسادور',
+        headerSub: 'ادعو أصحابك واربح مكافآت',
+        limitedText: 'إصدار محدود 2026',
+        tabSponsorText: 'فضاء الداعي',
+        tabSponsoredText: 'عندي كود',
+        loginTitle: 'ادخل لفضائك',
+        loginBtn: 'دخول',
+        codeTitle: 'كود الدعوة متاعك',
+        codeLabel: 'شارك الكود هذا مع أصحابك',
+        copyText: 'نسخ',
+        statFilleulsLabel: 'المدعوين',
+        statEarningsLabel: 'أرباح مؤكدة (د.ت)',
+        statPendingLabel: 'في الانتظار (د.ت)',
+        statPhaseLabel: 'المرحلة الحالية',
+        n2TitleLocked: '🔒 المستوى 2 مقفول',
+        n2StatusLocked: 'ادعو 3 أصحاب نشطين باش تفتحو',
+        n2TitleUnlocked: '🏆 المستوى 2 مفتوح !',
+        n2StatusUnlocked: 'تربح زادة من مدعوين مدعويينك',
+        filleulsTitle: 'المدعوين متاعي',
+        historyTitle: 'السجل',
+        loadingText: 'تحميل...',
+        phoneTitle: 'نمرة التلفون',
+        codeInputTitle: 'كود الدعوة',
+        submitText: 'فعّل الكود',
+        successTitle: 'مبروك !',
+        yourCodeLabel: 'كود الدعوة الشخصي متاعك',
+        yourCodeHint: 'شاركو باش تربح مكافآت',
+        openAppText: 'افتح التطبيق',
+        fomoText: 'فمّا {amount} د.ت توزعو على الداعيين !',
+        errPhone: 'النمرة ما لقيناهاش',
+        errCode: 'الكود غالط',
+        errAlready: 'عندك داعي من قبل',
+        errSelf: 'ما تنجمش تستعمل الكود متاعك',
+        copied: 'تنسخ !',
+        shareMsg: "🎁 استعمل الكود {code} في SpeedDelivro وتمتع بتخفيض ! حمّل التطبيق : https://speeddelivro.com/open",
+        cmdOf: 'طلبية من',
+        prime: 'مكافأة',
+        commission: 'عمولة',
+        emptyFilleuls: 'مازال ما عندك مدعوين',
+        emptyHistory: 'ما فمّاش معاملات',
+        phonePlaceholder: 'النمرة متاعك',
+        codePlaceholder: 'مثال: SPD123',
+        validUntil: 'صالح حتى',
+        discount: 'تخفيض'
+    },
+    en: {
+        headerTitle: 'Speed Ambassador',
+        headerSub: 'Refer your friends, earn rewards',
+        limitedText: 'Limited Edition 2026',
+        tabSponsorText: 'Sponsor Space',
+        tabSponsoredText: 'I have a code',
+        loginTitle: 'Access my sponsor space',
+        loginBtn: 'Access',
+        codeTitle: 'Your referral code',
+        codeLabel: 'Share this code with your friends',
+        copyText: 'Copy',
+        statFilleulsLabel: 'Referrals',
+        statEarningsLabel: 'Validated (DT)',
+        statPendingLabel: 'Pending (DT)',
+        statPhaseLabel: 'Current Phase',
+        n2TitleLocked: '🔒 Level 2 locked',
+        n2StatusLocked: 'Refer 3 active friends to unlock',
+        n2TitleUnlocked: '🏆 Level 2 unlocked!',
+        n2StatusUnlocked: "You also earn from your referrals' referrals",
+        filleulsTitle: 'My referrals',
+        historyTitle: 'History',
+        loadingText: 'Loading...',
+        phoneTitle: 'Your phone number',
+        codeInputTitle: 'Referral code',
+        submitText: 'Activate my code',
+        successTitle: 'Congratulations!',
+        yourCodeLabel: 'Your personal referral code',
+        yourCodeHint: 'Share it to earn rewards',
+        openAppText: 'Open the app',
+        fomoText: 'Already {amount} DT distributed to sponsors!',
+        errPhone: 'Number not found',
+        errCode: 'Invalid referral code',
+        errAlready: 'You already have a sponsor',
+        errSelf: "You can't use your own code",
+        copied: 'Copied!',
+        shareMsg: "🎁 Use my code {code} on SpeedDelivro and get a discount! Download: https://speeddelivro.com/open",
+        cmdOf: 'orders of',
+        prime: 'Bonus',
+        commission: 'Commission',
+        emptyFilleuls: 'No referrals yet',
+        emptyHistory: 'No transactions',
+        phonePlaceholder: 'Your number',
+        codePlaceholder: 'Ex: SPD123',
+        validUntil: 'Valid until',
+        discount: 'discount'
+    }
+};
+
+let currentLang = 'fr';
+let dashboardData = null;
+
+function setLang(lang) {
+    currentLang = lang;
+    document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+    event.target.classList.add('active');
+
+    const dir = lang === 'ar' ? 'rtl' : 'ltr';
+    document.documentElement.setAttribute('dir', dir);
+    document.documentElement.setAttribute('lang', lang);
+
+    const t = T[lang];
+    // Update static texts
+    const ids = ['headerTitle','headerSub','limitedText','tabSponsorText','tabSponsoredText',
+        'loginTitle','loginBtn','codeTitle','codeLabel','copyText',
+        'statFilleulsLabel','statEarningsLabel','statPendingLabel','statPhaseLabel',
+        'filleulsTitle','historyTitle','loadingText','phoneTitle','codeInputTitle',
+        'submitText','yourCodeLabel','yourCodeHint','openAppText'];
+    ids.forEach(id => {
+        const el = document.getElementById(id);
+        if (el && t[id]) el.textContent = t[id];
+    });
+
+    // Placeholders
+    document.getElementById('sponsorPhone').placeholder = t.phonePlaceholder;
+    document.getElementById('filleulPhone').placeholder = t.phonePlaceholder;
+    document.getElementById('filleulCode').placeholder = t.codePlaceholder;
+
+    // N2
+    const n2box = document.getElementById('n2Box');
+    if (dashboardData && dashboardData.n2_eligible) {
+        document.getElementById('n2Title').textContent = t.n2TitleUnlocked;
+        document.getElementById('n2Status').textContent = t.n2StatusUnlocked;
+    } else {
+        document.getElementById('n2Title').textContent = t.n2TitleLocked;
+        document.getElementById('n2Status').textContent = t.n2StatusLocked;
+    }
+
+    // FOMO
+    if (dashboardData && dashboardData.fomo_total > 0) {
+        document.getElementById('fomoText').innerHTML = t.fomoText.replace('{amount}', '<span class="fomo-amount">' + dashboardData.fomo_total + '</span>');
+    }
+
+    // Re-render lists if data exists
+    if (dashboardData) {
+        renderFilleuls(dashboardData.filleuls);
+        renderHistory(dashboardData.history);
+    }
+}
+
+function switchTab(tab) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+
+    if (tab === 'sponsor') {
+        document.getElementById('tabSponsor').classList.add('active');
+        document.getElementById('panelSponsor').classList.add('active');
+    } else {
+        document.getElementById('tabSponsored').classList.add('active');
+        document.getElementById('panelSponsored').classList.add('active');
+    }
+}
+
+// === API CALLS ===
+async function apiCall(data) {
+    const res = await fetch(API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    });
+    return res.json();
+}
+
+// === DASHBOARD PARRAIN ===
+async function loadDashboard() {
+    const phone = document.getElementById('sponsorPhone').value.replace(/\D/g, '');
+    if (phone.length < 8) return;
+
+    document.getElementById('sponsorLogin').style.display = 'none';
+    document.getElementById('sponsorLoading').classList.add('show');
+    document.getElementById('loginError').classList.remove('show');
+
+    try {
+        const data = await apiCall({ action: 'get_stats', phone: phone });
+
+        document.getElementById('sponsorLoading').classList.remove('show');
+
+        if (!data.success) {
+            document.getElementById('sponsorLogin').style.display = 'block';
+            document.getElementById('loginError').textContent = data.message;
+            document.getElementById('loginError').classList.add('show');
+            return;
+        }
+
+        dashboardData = data;
+
+        // Fill dashboard
+        document.getElementById('myCode').textContent = data.referral_code || '---';
+        document.getElementById('statFilleuls').textContent = data.total_filleuls;
+        document.getElementById('statEarnings').textContent = parseFloat(data.total_earnings).toFixed(2);
+        document.getElementById('statPending').textContent = parseFloat(data.pending_earnings).toFixed(2);
+        document.getElementById('statPhase').textContent = data.current_phase;
+
+        // N2
+        const n2box = document.getElementById('n2Box');
+        const t = T[currentLang];
+        if (data.n2_eligible) {
+            n2box.classList.remove('locked');
+            document.getElementById('n2Title').textContent = t.n2TitleUnlocked;
+            document.getElementById('n2Status').textContent = t.n2StatusUnlocked;
+        } else {
+            n2box.classList.add('locked');
+            document.getElementById('n2Title').textContent = t.n2TitleLocked;
+            document.getElementById('n2Status').textContent = t.n2StatusLocked;
+        }
+
+        renderFilleuls(data.filleuls);
+        renderHistory(data.history);
+
+        // FOMO
+        if (data.fomo_total > 0) {
+            document.getElementById('fomoAmount').textContent = data.fomo_total;
+            document.getElementById('fomoBanner').classList.add('show');
+        }
+
+        document.getElementById('sponsorDashboard').style.display = 'block';
+
+    } catch (e) {
+        document.getElementById('sponsorLoading').classList.remove('show');
+        document.getElementById('sponsorLogin').style.display = 'block';
+        document.getElementById('loginError').textContent = 'Erreur de connexion';
+        document.getElementById('loginError').classList.add('show');
+    }
+}
+
+function renderFilleuls(filleuls) {
+    const container = document.getElementById('filleulsList');
+    const t = T[currentLang];
+
+    if (!filleuls || filleuls.length === 0) {
+        container.innerHTML = '<div class="empty-state"><div class="empty-icon">👥</div><div class="empty-text">' + t.emptyFilleuls + '</div></div>';
+        return;
+    }
+
+    container.innerHTML = filleuls.map(f => {
+        const pct = Math.min(100, (f.orders_hors_welcome / f.max_orders) * 100);
+        const initial = (f.name || '?')[0].toUpperCase();
+        return `<div class="filleul-item">
+            <div class="filleul-avatar">${initial}</div>
+            <div class="filleul-info">
+                <div class="filleul-name">${f.name}</div>
+                <div class="filleul-progress">${f.orders_hors_welcome}/${f.max_orders} ${t.cmdOf} ${f.completed ? '✅' : ''}</div>
+                <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+function renderHistory(history) {
+    const container = document.getElementById('historyList');
+    const t = T[currentLang];
+
+    if (!history || history.length === 0) {
+        container.innerHTML = '<div class="empty-state"><div class="empty-icon">📜</div><div class="empty-text">' + t.emptyHistory + '</div></div>';
+        return;
+    }
+
+    container.innerHTML = history.map(h => {
+        const typeLabel = h.sc_type === 'prime' ? t.prime : t.commission;
+        const levelLabel = 'N' + h.sc_level;
+        const statusClass = 'status-' + h.sc_status;
+        const amountClass = h.sc_status === 'validated' ? 'credit' : (h.sc_status === 'cancelled' ? 'cancelled' : 'pending');
+
+        return `<div class="history-item">
+            <div>
+                <div class="history-type">${typeLabel} ${levelLabel}</div>
+                <div class="history-detail">${h.sc_order_id} ${h.sc_is_welcome == 1 ? '🎁' : ''}</div>
+            </div>
+            <div style="text-align:right">
+                <div class="history-amount ${amountClass}">+${parseFloat(h.sc_commission_amount).toFixed(2)} DT</div>
+                <span class="history-status ${statusClass}">${h.sc_status}</span>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+// === CODE CHECK ===
+let checkTimer = null;
+let codeValid = false;
+
+function checkCodeLive(input) {
+    input.value = input.value.toUpperCase();
+    clearTimeout(checkTimer);
+    const icon = document.getElementById('codeCheckIcon');
+    icon.className = 'code-check';
+    icon.style.display = 'none';
+    document.getElementById('submitBtn').disabled = true;
+    codeValid = false;
+
+    if (input.value.length >= 3) {
+        checkTimer = setTimeout(async () => {
+            try {
+                const data = await apiCall({ action: 'check_code', code: input.value });
+                if (data.valid) {
+                    icon.className = 'code-check valid';
+                    icon.textContent = '✓';
+                    icon.style.display = 'flex';
+                    codeValid = true;
+                    document.getElementById('submitBtn').disabled = false;
+                } else {
+                    icon.className = 'code-check invalid';
+                    icon.textContent = '✗';
+                    icon.style.display = 'flex';
+                }
+            } catch(e) {}
+        }, 500);
+    }
+}
+
+// === LINK AFFILIATE ===
+async function submitLink() {
+    const phone = document.getElementById('filleulPhone').value.replace(/\D/g, '');
+    const code = document.getElementById('filleulCode').value.trim();
+    const t = T[currentLang];
+
+    if (phone.length < 8 || !codeValid) return;
+
+    document.getElementById('submitBtn').disabled = true;
+    document.getElementById('linkError').classList.remove('show');
+
+    try {
+        const data = await apiCall({ action: 'link_affiliate', phone: phone, code: code });
+
+        if (!data.success) {
+            document.getElementById('linkError').textContent = data.message;
+            document.getElementById('linkError').classList.add('show');
+            document.getElementById('submitBtn').disabled = false;
+            return;
+        }
+
+        // Success
+        document.getElementById('sponsoredForm').style.display = 'none';
+        document.getElementById('successMsg').textContent = data.message;
+        document.getElementById('successCoupon').textContent = data.coupon_code;
+        document.getElementById('successCouponDetails').textContent = data.discount + ' ' + t.discount + ' — ' + t.validUntil + ' ' + data.valid_until;
+        document.getElementById('successTitle').textContent = t.successTitle;
+
+        if (data.your_code) {
+            document.getElementById('yourCodeValue').textContent = data.your_code;
+            document.getElementById('yourCodeLabel').textContent = t.yourCodeLabel;
+            document.getElementById('yourCodeHint').textContent = t.yourCodeHint;
+        }
+
+        document.getElementById('successBox').classList.add('show');
+
+    } catch(e) {
+        document.getElementById('linkError').textContent = 'Erreur de connexion';
+        document.getElementById('linkError').classList.add('show');
+        document.getElementById('submitBtn').disabled = false;
+    }
+}
+
+// === ACTIONS ===
+function copyCode() {
+    const code = document.getElementById('myCode').textContent;
+    navigator.clipboard.writeText(code).then(() => {
+        const btn = event.target.closest('.btn-copy');
+        const orig = btn.innerHTML;
+        btn.innerHTML = '✅ ' + T[currentLang].copied;
+        setTimeout(() => btn.innerHTML = orig, 2000);
+    });
+}
+
+function shareWhatsApp() {
+    const code = document.getElementById('myCode').textContent;
+    const msg = T[currentLang].shareMsg.replace('{code}', code);
+    window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
+}
+
+// === URL PARAMS ===
+const params = new URLSearchParams(window.location.search);
+if (params.get('code')) {
+    switchTab('sponsored');
+    document.getElementById('filleulCode').value = params.get('code').toUpperCase();
+    checkCodeLive(document.getElementById('filleulCode'));
+}
+if (params.get('lang')) {
+    setLang(params.get('lang'));
+}
+if (params.get('tab') === 'sponsor') {
+    switchTab('sponsor');
+}
+
+// Set initial placeholders
+document.getElementById('sponsorPhone').placeholder = T[currentLang].phonePlaceholder;
+document.getElementById('filleulPhone').placeholder = T[currentLang].phonePlaceholder;
+document.getElementById('filleulCode').placeholder = T[currentLang].codePlaceholder;
+</script>
+
+</body>
+</html>
