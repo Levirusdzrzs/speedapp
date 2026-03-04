@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SPA Admin - SpeedDelivro</title>
+    <link rel="icon" href="https://speeddelivro.com/images/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary:#1a56db; --primary-dark:#1440a8; --primary-light:#e8effd; --accent:#f59e0b; --success:#10b981; --danger:#ef4444; --bg:#0f172a; --card:#1e293b; --card2:#334155; --text:#f1f5f9; --text-light:#94a3b8; --border:#475569; --radius:12px; --shadow:0 4px 20px rgba(0,0,0,0.3); }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Tajawal',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+
+        .login-screen { display:flex; align-items:center; justify-content:center; min-height:100vh; padding:20px; }
+        .login-box { background:var(--card); border-radius:var(--radius); padding:32px; width:100%; max-width:360px; box-shadow:var(--shadow); }
+        .login-box h2 { text-align:center; margin-bottom:24px; font-size:20px; }
+        .login-box input { width:100%; padding:12px; border:2px solid var(--border); border-radius:8px; background:var(--bg); color:var(--text); font-family:'Tajawal'; font-size:14px; margin-bottom:12px; outline:none; }
+        .login-box input:focus { border-color:var(--primary); }
+        .login-box button { width:100%; padding:12px; background:var(--primary); color:#fff; border:none; border-radius:8px; font-size:15px; font-weight:700; font-family:'Tajawal'; cursor:pointer; }
+        .login-box .err { color:var(--danger); font-size:13px; text-align:center; margin-top:8px; display:none; }
+
+        .topbar { background:var(--card); padding:12px 16px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); position:sticky; top:0; z-index:10; }
+        .topbar h1 { font-size:16px; font-weight:700; }
+        .topbar .badge-live { background:var(--success); color:#fff; font-size:10px; padding:2px 8px; border-radius:10px; font-weight:700; animation:pulse 2s infinite; }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.6} }
+        .btn-sm { padding:6px 12px; border:1px solid var(--border); border-radius:6px; background:transparent; color:var(--text-light); font-size:12px; font-family:'Tajawal'; cursor:pointer; }
+        .btn-sm:hover { background:var(--card2); }
+
+        .nav { display:flex; overflow-x:auto; gap:4px; padding:8px 16px; background:var(--card); border-bottom:1px solid var(--border); }
+        .nav button { padding:8px 14px; border:none; border-radius:8px; background:transparent; color:var(--text-light); font-size:13px; font-weight:600; font-family:'Tajawal'; cursor:pointer; white-space:nowrap; }
+        .nav button.active { background:var(--primary); color:#fff; }
+
+        .content { padding:16px; max-width:900px; margin:0 auto; }
+        .section { display:none; }
+        .section.active { display:block; animation:fadeIn 0.2s; }
+        @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+
+        .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px; }
+        .grid3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-bottom:16px; }
+        @media(max-width:480px) { .grid3 { grid-template-columns:1fr 1fr; } }
+
+        .kpi { background:var(--card); border-radius:var(--radius); padding:16px; text-align:center; }
+        .kpi-value { font-size:28px; font-weight:800; color:var(--primary); }
+        .kpi-value.green { color:var(--success); }
+        .kpi-value.orange { color:var(--accent); }
+        .kpi-value.red { color:var(--danger); }
+        .kpi-label { font-size:11px; color:var(--text-light); margin-top:4px; }
+
+        .card { background:var(--card); border-radius:var(--radius); padding:16px; margin-bottom:16px; }
+        .card-title { font-size:14px; font-weight:700; margin-bottom:12px; display:flex; align-items:center; gap:8px; }
+
+        table { width:100%; border-collapse:collapse; font-size:13px; }
+        th { text-align:left; padding:8px; color:var(--text-light); font-weight:600; border-bottom:1px solid var(--border); font-size:11px; text-transform:uppercase; }
+        td { padding:8px; border-bottom:1px solid rgba(71,85,105,0.3); }
+        tr:hover { background:rgba(255,255,255,0.03); }
+
+        .badge { font-size:10px; padding:2px 8px; border-radius:10px; font-weight:700; }
+        .badge-pending { background:#fef3c7; color:#92400e; }
+        .badge-validated { background:#d1fae5; color:#065f46; }
+        .badge-cancelled { background:#fee2e2; color:#991b1b; }
+        .badge-high { background:#fee2e2; color:#991b1b; }
+        .badge-medium { background:#fef3c7; color:#92400e; }
+        .badge-low { background:#dbeafe; color:#1e40af; }
+
+        .btn-action { padding:4px 10px; border:1px solid var(--border); border-radius:6px; background:transparent; color:var(--text-light); font-size:11px; font-family:'Tajawal'; cursor:pointer; }
+        .btn-action:hover { background:var(--danger); color:#fff; border-color:var(--danger); }
+        .btn-action.view:hover { background:var(--primary); color:#fff; border-color:var(--primary); }
+
+        .config-row { display:flex; align-items:center; justify-content:space-between; padding:10px 0; border-bottom:1px solid rgba(71,85,105,0.3); gap:12px; flex-wrap:wrap; }
+        .config-name { font-size:12px; color:var(--text-light); font-weight:600; flex:1; min-width:180px; }
+        .config-input { padding:6px 10px; border:1px solid var(--border); border-radius:6px; background:var(--bg); color:var(--text); font-family:'Tajawal'; font-size:13px; width:100px; text-align:center; }
+        .config-save { padding:6px 12px; background:var(--primary); color:#fff; border:none; border-radius:6px; font-size:12px; font-family:'Tajawal'; cursor:pointer; font-weight:600; }
+        .config-save:hover { background:var(--primary-dark); }
+        .config-ok { color:var(--success); font-size:12px; display:none; }
+
+        .kill-switch { display:flex; align-items:center; gap:12px; padding:16px; background:var(--card); border-radius:var(--radius); margin-bottom:16px; }
+        .switch { position:relative; width:52px; height:28px; }
+        .switch input { display:none; }
+        .switch label { display:block; width:100%; height:100%; background:var(--danger); border-radius:14px; cursor:pointer; transition:0.3s; }
+        .switch input:checked + label { background:var(--success); }
+        .switch label::after { content:''; position:absolute; top:3px; left:3px; width:22px; height:22px; background:#fff; border-radius:50%; transition:0.3s; }
+        .switch input:checked + label::after { left:27px; }
+
+        .empty { text-align:center; padding:32px; color:var(--text-light); font-size:14px; }
+        .refresh-btn { margin-left:auto; }
+    </style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-screen" id="loginScreen">
+    <div class="login-box">
+        <h2>🔐 SPA Admin</h2>
+        <input type="text" id="adminUser" placeholder="Utilisateur" value="admin">
+        <input type="password" id="adminPass" placeholder="Mot de passe">
+        <button onclick="doLogin()">Connexion</button>
+        <div class="err" id="loginErr">Identifiants incorrects</div>
+    </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard" style="display:none;">
+    <div class="topbar">
+        <div style="display:flex;align-items:center;gap:8px;">
+            <h1>⚡ SPA Admin</h1>
+            <span class="badge-live" id="liveStatus">LIVE</span>
+        </div>
+        <div style="display:flex;gap:8px;">
+            <button class="btn-sm" onclick="refreshAll()">🔄 Refresh</button>
+            <button class="btn-sm" onclick="doLogout()">⬅ Logout</button>
+        </div>
+    </div>
+
+    <div class="nav" id="navBar">
+        <button class="active" onclick="showSection('stats')">📊 Stats</button>
+        <button onclick="showSection('parrains')">👑 Parrains</button>
+        <button onclick="showSection('commissions')">💰 Commissions</button>
+        <button onclick="showSection('fraud')">🚨 Fraude</button>
+        <button onclick="showSection('configs')">⚙️ Configs</button>
+    </div>
+
+    <div class="content">
+
+        <!-- STATS -->
+        <div class="section active" id="secStats">
+            <div class="grid3">
+                <div class="kpi"><div class="kpi-value" id="kParrains">-</div><div class="kpi-label">Parrains actifs</div></div>
+                <div class="kpi"><div class="kpi-value" id="kFilleuls">-</div><div class="kpi-label">Filleuls liés</div></div>
+                <div class="kpi"><div class="kpi-value" id="kGrace">-</div><div class="kpi-label">En grâce</div></div>
+            </div>
+            <div class="grid3">
+                <div class="kpi"><div class="kpi-value green" id="kValidated">-</div><div class="kpi-label">Validées (DT)</div></div>
+                <div class="kpi"><div class="kpi-value orange" id="kPending">-</div><div class="kpi-label">Pending (DT)</div></div>
+                <div class="kpi"><div class="kpi-value red" id="kCancelled">-</div><div class="kpi-label">Annulées (DT)</div></div>
+            </div>
+            <div class="grid2">
+                <div class="kpi"><div class="kpi-value" id="k24h">-</div><div class="kpi-label">Dernières 24h</div></div>
+                <div class="kpi"><div class="kpi-value" id="k7d">-</div><div class="kpi-label">7 derniers jours</div></div>
+            </div>
+            <div class="card">
+                <div class="card-title">🏆 Top Parrains</div>
+                <table>
+                    <thead><tr><th>Parrain</th><th>Code</th><th>Filleuls</th><th>Validé</th><th>Pending</th></tr></thead>
+                    <tbody id="topParrains"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- PARRAINS -->
+        <div class="section" id="secParrains">
+            <div class="card">
+                <div class="card-title">👑 Liste des parrains</div>
+                <table>
+                    <thead><tr><th>ID</th><th>Nom</th><th>Code</th><th>Filleuls</th><th>Validé</th><th>Pending</th><th></th></tr></thead>
+                    <tbody id="parrainsList"></tbody>
+                </table>
+                <div id="parrainsPager" style="text-align:center;padding:12px;"></div>
+            </div>
+            <div class="card" id="filleulsDetail" style="display:none;">
+                <div class="card-title">👥 Filleuls de <span id="filleulsParrainName"></span></div>
+                <table>
+                    <thead><tr><th>ID</th><th>Nom</th><th>Email</th><th>Cmd livrées</th><th>Grâce</th><th></th></tr></thead>
+                    <tbody id="filleulsList2"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- COMMISSIONS -->
+        <div class="section" id="secCommissions">
+            <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
+                <button class="btn-sm" style="background:var(--card2);" onclick="loadCommissions('all',1)">Toutes</button>
+                <button class="btn-sm" onclick="loadCommissions('pending',1)">⏳ Pending</button>
+                <button class="btn-sm" onclick="loadCommissions('validated',1)">✅ Validées</button>
+                <button class="btn-sm" onclick="loadCommissions('cancelled',1)">❌ Annulées</button>
+            </div>
+            <div class="card">
+                <table>
+                    <thead><tr><th>ID</th><th>Parrain</th><th>Filleul</th><th>Type</th><th>Montant</th><th>Statut</th><th>Date</th></tr></thead>
+                    <tbody id="commList"></tbody>
+                </table>
+                <div id="commPager" style="text-align:center;padding:12px;"></div>
+            </div>
+        </div>
+
+        <!-- FRAUDE -->
+        <div class="section" id="secFraud">
+            <div class="card">
+                <div class="card-title">🚨 Alertes Fraude <button class="btn-sm refresh-btn" onclick="loadFraud()">🔄</button></div>
+                <div id="fraudAlerts"></div>
+            </div>
+        </div>
+
+        <!-- CONFIGS -->
+        <div class="section" id="secConfigs">
+            <div class="kill-switch">
+                <div class="switch"><input type="checkbox" id="killSwitch" onchange="toggleSystem()"><label for="killSwitch"></label></div>
+                <div><strong>Système SPA</strong><br><span style="font-size:12px;color:var(--text-light);" id="killLabel">Activé</span></div>
+            </div>
+            <div class="card">
+                <div class="card-title">⚙️ Configurations modifiables</div>
+                <div id="configsList"></div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+const AUTH_API = 'https://speeddelivro.com/api-auth.php';
+const ADMIN_API = 'https://speeddelivro.com/api-spa-admin.php';
+let token = localStorage.getItem('spa_admin_token') || '';
+let tokenExpiry = parseInt(localStorage.getItem('spa_admin_expiry') || '0');
+
+// Check existing token
+if (token && tokenExpiry > Date.now()/1000) { showDashboard(); }
+
+async function doLogin() {
+    const u = document.getElementById('adminUser').value;
+    const p = document.getElementById('adminPass').value;
+    try {
+        const r = await fetch(AUTH_API, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({username:u,password:p}) });
+        const d = await r.json();
+        if (d.status === 1) {
+            token = d.token; tokenExpiry = d.expiry;
+            localStorage.setItem('spa_admin_token', token);
+            localStorage.setItem('spa_admin_expiry', tokenExpiry);
+            showDashboard();
+        } else { document.getElementById('loginErr').style.display = 'block'; }
+    } catch(e) { document.getElementById('loginErr').style.display = 'block'; }
+}
+
+function doLogout() { token = ''; localStorage.removeItem('spa_admin_token'); localStorage.removeItem('spa_admin_expiry'); location.reload(); }
+
+function showDashboard() {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    refreshAll();
+}
+
+async function api(action, data={}) {
+    const r = await fetch(ADMIN_API, { method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token}, body:JSON.stringify({action,...data}) });
+    if (r.status === 401) { doLogout(); return null; }
+    return r.json();
+}
+
+function showSection(name) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
+    document.getElementById('sec' + name.charAt(0).toUpperCase() + name.slice(1)).classList.add('active');
+    event.target.classList.add('active');
+}
+
+async function refreshAll() {
+    loadStats();
+    loadParrains(1);
+    loadCommissions('all', 1);
+    loadFraud();
+}
+
+// === STATS ===
+async function loadStats() {
+    const d = await api('stats');
+    if (!d || !d.success) return;
+    document.getElementById('kParrains').textContent = d.total_parrains;
+    document.getElementById('kFilleuls').textContent = d.total_filleuls;
+    document.getElementById('kGrace').textContent = d.grace_active;
+    document.getElementById('kValidated').textContent = parseFloat(d.total_validated).toFixed(2);
+    document.getElementById('kPending').textContent = parseFloat(d.total_pending).toFixed(2);
+    document.getElementById('kCancelled').textContent = parseFloat(d.total_cancelled).toFixed(2);
+    document.getElementById('k24h').textContent = d.last_24h.cnt + ' (' + parseFloat(d.last_24h.total).toFixed(2) + ' DT)';
+    document.getElementById('k7d').textContent = d.last_7_days.cnt + ' (' + parseFloat(d.last_7_days.total).toFixed(2) + ' DT)';
+    document.getElementById('liveStatus').textContent = d.configs.CONF_SPA_ACTIVE === '1' ? 'LIVE' : 'OFF';
+    document.getElementById('liveStatus').style.background = d.configs.CONF_SPA_ACTIVE === '1' ? 'var(--success)' : 'var(--danger)';
+    document.getElementById('killSwitch').checked = d.configs.CONF_SPA_ACTIVE === '1';
+    document.getElementById('killLabel').textContent = d.configs.CONF_SPA_ACTIVE === '1' ? 'Système activé' : 'Système désactivé';
+
+    const tb = document.getElementById('topParrains');
+    tb.innerHTML = (d.top_parrains||[]).map(p => `<tr><td>${p.udetails_first_name}</td><td>${p.user_referral_code}</td><td>${p.nb_filleuls}</td><td style="color:var(--success)">${parseFloat(p.gains_valides).toFixed(2)}</td><td style="color:var(--accent)">${parseFloat(p.gains_pending).toFixed(2)}</td></tr>`).join('') || '<tr><td colspan="5" class="empty">Aucun parrain</td></tr>';
+
+    // Configs
+    renderConfigs(d.configs);
+}
+
+// === PARRAINS ===
+async function loadParrains(page) {
+    const d = await api('parrains', {page});
+    if (!d || !d.success) return;
+    const tb = document.getElementById('parrainsList');
+    tb.innerHTML = d.parrains.map(p => `<tr>
+        <td>${p.user_id}</td><td>${p.udetails_first_name}</td><td>${p.user_referral_code}</td>
+        <td>${p.nb_filleuls}</td><td style="color:var(--success)">${parseFloat(p.gains_valides).toFixed(2)}</td>
+        <td style="color:var(--accent)">${parseFloat(p.gains_pending).toFixed(2)}</td>
+        <td><button class="btn-action view" onclick="viewFilleuls(${p.user_id},'${p.udetails_first_name}')">👥</button></td>
+    </tr>`).join('') || '<tr><td colspan="7" class="empty">Aucun</td></tr>';
+    document.getElementById('parrainsPager').innerHTML = d.pages > 1 ? Array.from({length:d.pages},(_,i)=>`<button class="btn-sm" style="${i+1===page?'background:var(--primary);color:#fff':''}" onclick="loadParrains(${i+1})">${i+1}</button> `).join('') : '';
+}
+
+async function viewFilleuls(pid, name) {
+    document.getElementById('filleulsParrainName').textContent = name;
+    const d = await api('filleuls', {parrain_id:pid});
+    if (!d || !d.success) return;
+    const tb = document.getElementById('filleulsList2');
+    tb.innerHTML = d.filleuls.map(f => {
+        const grace = f.user_parrain_grace_expires ? (new Date(f.user_parrain_grace_expires) > new Date() ? '⏳ '+f.user_parrain_grace_expires.slice(0,10) : '❌ Expiré') : '✅ Actif';
+        return `<tr><td>${f.user_id}</td><td>${f.udetails_first_name}</td><td style="font-size:11px">${f.user_email||'-'}</td><td>${f.cmd_livrees}</td><td style="font-size:11px">${grace}</td><td><button class="btn-action" onclick="unlinkFilleul(${f.user_id},'${f.udetails_first_name}')">✂️</button></td></tr>`;
+    }).join('') || '<tr><td colspan="6" class="empty">Aucun filleul</td></tr>';
+    document.getElementById('filleulsDetail').style.display = 'block';
+}
+
+async function unlinkFilleul(uid, name) {
+    if (!confirm('Délier ' + name + ' (ID:' + uid + ') ? Ses commissions pending seront annulées.')) return;
+    const d = await api('unlink_filleul', {user_id:uid});
+    if (d && d.success) { alert(d.message); refreshAll(); }
+}
+
+// === COMMISSIONS ===
+let commFilter = 'all';
+async function loadCommissions(status, page) {
+    commFilter = status;
+    const d = await api('commissions', {status, page});
+    if (!d || !d.success) return;
+    const tb = document.getElementById('commList');
+    tb.innerHTML = d.commissions.map(c => `<tr>
+        <td>${c.sc_id}</td><td>${c.parrain_name}</td><td>${c.filleul_name}</td>
+        <td>${c.sc_type} N${c.sc_level}</td>
+        <td>${parseFloat(c.sc_commission_amount).toFixed(2)} DT</td>
+        <td><span class="badge badge-${c.sc_status}">${c.sc_status}</span></td>
+        <td style="font-size:11px">${(c.sc_created_at||'').slice(0,16)}</td>
+    </tr>`).join('') || '<tr><td colspan="7" class="empty">Aucune commission</td></tr>';
+    document.getElementById('commPager').innerHTML = d.pages > 1 ? Array.from({length:d.pages},(_,i)=>`<button class="btn-sm" style="${i+1===page?'background:var(--primary);color:#fff':''}" onclick="loadCommissions('${status}',${i+1})">${i+1}</button> `).join('') : '';
+}
+
+// === FRAUDE ===
+async function loadFraud() {
+    const d = await api('fraud_check');
+    if (!d || !d.success) return;
+    const c = document.getElementById('fraudAlerts');
+    if (!d.alerts.length) { c.innerHTML = '<div class="empty">✅ Aucune alerte</div>'; return; }
+    c.innerHTML = d.alerts.map(a => `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(71,85,105,0.3);">
+        <div><span class="badge badge-${a.severity}">${a.severity.toUpperCase()}</span> <span style="font-size:13px;margin-left:8px;">${a.message}</span></div>
+        <span style="font-size:11px;color:var(--text-light)">${a.type}</span>
+    </div>`).join('');
+}
+
+// === CONFIGS ===
+const configLabels = {
+    CONF_SPA_ACTIVE:'Système actif (0/1)', CONF_SPA_PHASE:'Phase (1/2/3)',
+    CONF_SPA_N1_PERCENT:'Commission N1 %', CONF_SPA_N2_PERCENT:'Commission N2 %',
+    CONF_SPA_PRIME_N1_T1:'Prime N1 T1 (DT)', CONF_SPA_PRIME_N1_T2:'Prime N1 T2 (DT)', CONF_SPA_PRIME_N1_T3:'Prime N1 T3 (DT)',
+    CONF_SPA_PRIME_N2_T1:'Prime N2 T1 (DT)', CONF_SPA_PRIME_N2_T2:'Prime N2 T2 (DT)', CONF_SPA_PRIME_N2_T3:'Prime N2 T3 (DT)',
+    CONF_SPA_MIN_BASKET:'Panier minimum (DT)', CONF_SPA_MAX_COMMANDS:'Max commandes',
+    CONF_SPA_VALIDATION_HOURS:'Heures validation', CONF_SPA_N2_MIN_FILLEULS:'Filleuls min N2',
+    CONF_SPA_N2_MIN_CMD_PER_FILLEUL:'Cmd min/filleul N2', CONF_SPA_N2_ACTIVE_DAYS:'Jours actif N2',
+    CONF_SPA_END_DATE:'Date fin programme', CONF_SPA_GRACE_DAYS:'Jours de grâce'
+};
+
+function renderConfigs(configs) {
+    const c = document.getElementById('configsList');
+    c.innerHTML = Object.entries(configs).filter(([k]) => k !== 'CONF_SPA_ACTIVE').map(([k,v]) => `<div class="config-row">
+        <span class="config-name">${configLabels[k]||k}</span>
+        <input class="config-input" id="cfg_${k}" value="${v}">
+        <button class="config-save" onclick="saveConfig('${k}')">💾</button>
+        <span class="config-ok" id="ok_${k}">✅</span>
+    </div>`).join('');
+}
+
+async function saveConfig(name) {
+    const val = document.getElementById('cfg_'+name).value;
+    const d = await api('update_config', {name, value:val});
+    if (d && d.success) {
+        const ok = document.getElementById('ok_'+name);
+        ok.style.display = 'inline'; setTimeout(() => ok.style.display = 'none', 2000);
+    }
+}
+
+async function toggleSystem() {
+    const active = document.getElementById('killSwitch').checked ? '1' : '0';
+    await api('update_config', {name:'CONF_SPA_ACTIVE', value:active});
+    document.getElementById('killLabel').textContent = active === '1' ? 'Système activé' : 'Système désactivé';
+    document.getElementById('liveStatus').textContent = active === '1' ? 'LIVE' : 'OFF';
+    document.getElementById('liveStatus').style.background = active === '1' ? 'var(--success)' : 'var(--danger)';
+}
+</script>
+</body>
+</html>
