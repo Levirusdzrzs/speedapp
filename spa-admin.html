@@ -283,10 +283,15 @@ function showSection(name) {
 }
 
 async function refreshAll() {
-    loadStats();
-    loadParrains(1);
-    loadCommissions('all', 1);
-    loadFraud();
+    try {
+        loadStats();
+        loadParrains(1);
+        loadCommissions('all', 1);
+        loadFraud();
+        loadPendingDrivers();
+        loadApprovedDrivers();
+        loadLeaderboardAdmin();
+    } catch(e) { console.error('refreshAll error', e); }
 }
 
 // === STATS ===
