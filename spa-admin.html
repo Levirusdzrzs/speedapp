@@ -117,7 +117,8 @@
         <button onclick="showSection('commissions')">💰 Commissions</button>
         <button onclick="showSection('fraud')">🚨 Fraude</button>
         <button onclick="showSection('configs')">⚙️ Configs</button>
-        <button onclick="showSection('drivers')">🚗 Livreurs</button>
+        <button onclick="showSection('drivers')"> 🛵 Livreurs</button>
+        <button onclick="showSection('leaderboard')">🏆 Leaderboard</button>
     </div>
 
     <div class="content">
@@ -221,6 +222,21 @@
     </div>
 </div>
 
+                <!-- SECTION LEADERBOARD -->
+                <div id="sectionLeaderboard" class="section" style="display:none;">
+                    <div class="card">
+                        <div class="card-title">🏆 Leaderboard Mensuel <button class="btn-sm refresh-btn" onclick="loadLeaderboardAdmin()">🔄</button></div>
+                        <div style="margin-bottom:12px;">
+                            <select id="lbMonthSelect" onchange="loadLeaderboardAdmin()" style="padding:6px 12px;border-radius:8px;border:1px solid #e2e8f0;font-family:inherit;">
+                                <option value="">-- Tous les mois --</option>
+                            </select>
+                        </div>
+                        <table>
+                            <thead><tr><th>Mois</th><th>Rang</th><th>Code</th><th>Nom</th><th>Score</th><th>Filleuls</th><th>Cmds</th><th>Bonus</th><th>Payé</th></tr></thead>
+                            <tbody id="lbAdminList"></tbody>
+                        </table>
+                    </div>
+                </div>
 <script>
 const AUTH_API = 'https://speeddelivro.com/api-auth.php';
 const ADMIN_API = 'https://speeddelivro.com/api-spa-admin.php';
@@ -298,6 +314,38 @@ async function loadStats() {
 }
 
 // === PARRAINS ===
+
+async function loadLeaderboardAdmin() {
+    const month = document.getElementById('lbMonthSelect') ? document.getElementById('lbMonthSelect').value : '';
+    const d = await api('leaderboard', {month: month});
+    if (!d || !d.success) return;
+
+    // Remplir select mois
+    const sel = document.getElementById('lbMonthSelect');
+    if (d.months && d.months.length > 0) {
+        const current = sel.value;
+        sel.innerHTML = '<option value="">-- Tous les mois --</option>' +
+            d.months.map(m => `<option value="${m}" ${m===current?'selected':''}>${m}</option>`).join('');
+    }
+
+    const medals = {1:'🥇',2:'🥈',3:'🥉'};
+    const tb = document.getElementById('lbAdminList');
+    if (!d.leaderboard || !d.leaderboard.length) {
+        tb.innerHTML = '<tr><td colspan="9" class="empty">Aucun résultat</td></tr>';
+        return;
+    }
+    tb.innerHTML = d.leaderboard.map(r => `<tr>
+        <td>${r.lb_month}</td>
+        <td>${medals[r.lb_rank]||r.lb_rank}</td>
+        <td><strong>${r.user_referral_code}</strong></td>
+        <td>${r.udetails_first_name}</td>
+        <td>${r.lb_score}</td>
+        <td>${r.lb_filleuls_actifs}</td>
+        <td>${r.lb_commandes_mois}</td>
+        <td style="color:var(--success)">${parseFloat(r.lb_bonus_amount).toFixed(2)} DT</td>
+        <td>${r.lb_bonus_paid ? '✅' : '⏳'}</td>
+    </tr>`).join('');
+}
 async function loadParrains(page) {
     const d = await api('parrains', {page});
     if (!d || !d.success) return;
