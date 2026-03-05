@@ -484,9 +484,9 @@ function setLang(lang) {
 function switchTab(tab) {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-    if (tab === 'sponsor') { document.getElementById('tabSponsor').classList.add('active'); document.getElementById('panelSponsor').classList.add('active'); }
-    else if (tab === 'driver') { document.getElementById('tabDriver').classList.add('active'); document.getElementById('panelDriver').classList.add('active'); }
-    else { document.getElementById('tabSponsored').classList.add('active'); document.getElementById('panelSponsored').classList.add('active'); }
+    if (tab === 'sponsor') { document.getElementById('tabSponsor').classList.add('active'); document.getElementById('panelSponsor').classList.add('active'); document.querySelector('.leaderboard-section').style.display='block'; }
+    else if (tab === 'driver') { document.getElementById('tabDriver').classList.add('active'); document.getElementById('panelDriver').classList.add('active'); document.querySelector('.leaderboard-section').style.display='none'; }
+    else { document.getElementById('tabSponsored').classList.add('active'); document.getElementById('panelSponsored').classList.add('active'); document.querySelector('.leaderboard-section').style.display='block'; }
 }
 
 function togglePhoneLogin() {
