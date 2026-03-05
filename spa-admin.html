@@ -117,6 +117,7 @@
         <button onclick="showSection('commissions')">💰 Commissions</button>
         <button onclick="showSection('fraud')">🚨 Fraude</button>
         <button onclick="showSection('configs')">⚙️ Configs</button>
+        <button onclick="showSection('drivers')">🚗 Livreurs</button>
     </div>
 
     <div class="content">
@@ -199,6 +200,21 @@
             <div class="card">
                 <div class="card-title">⚙️ Configurations modifiables</div>
                 <div id="configsList"></div>
+            </div>
+        </div>
+
+        <!-- LIVREURS AMBASSADEURS -->
+        <div class="section" id="secDrivers">
+            <div class="card">
+                <div class="card-title">🚗 Livreurs en attente <button class="btn-sm refresh-btn" onclick="loadPendingDrivers()">🔄</button></div>
+                <div id="driversEmpty" class="empty" style="display:none">✅ Aucun livreur en attente</div>
+                <table><thead><tr><th>ID</th><th>Nom</th><th>Email</th><th>Tél</th><th>Code</th><th>Demande</th><th>Action</th></tr></thead>
+                <tbody id="driversList"></tbody></table>
+            </div>
+            <div class="card">
+                <div class="card-title">✅ Livreurs approuvés</div>
+                <table><thead><tr><th>ID</th><th>Nom</th><th>Email</th><th>Code SPD</th><th>Filleuls</th><th>Gains validés</th></tr></thead>
+                <tbody id="driversApprovedList"></tbody></table>
             </div>
         </div>
 
@@ -379,6 +395,48 @@ async function toggleSystem() {
     document.getElementById('killLabel').textContent = active === '1' ? 'Système activé' : 'Système désactivé';
     document.getElementById('liveStatus').textContent = active === '1' ? 'LIVE' : 'OFF';
     document.getElementById('liveStatus').style.background = active === '1' ? 'var(--success)' : 'var(--danger)';
+}
+
+// === LIVREURS AMBASSADEURS ===
+async function loadPendingDrivers() {
+    const d = await api("pending_drivers");
+    if (!d || !d.success) return;
+    const tb = document.getElementById("driversList");
+    if (!d.drivers || d.drivers.length === 0) {
+        tb.innerHTML = "";
+        document.getElementById("driversEmpty").style.display = "block";
+        return;
+    }
+    document.getElementById("driversEmpty").style.display = "none";
+    tb.innerHTML = d.drivers.map(dr => `<tr>
+        <td>${dr.user_id}</td><td>${dr.udetails_first_name}</td>
+        <td style="font-size:11px">${dr.user_email}</td>
+        <td style="font-size:11px">${dr.udetails_phone||"-"}</td>
+        <td><strong>${dr.user_referral_code||"-"}</strong></td>
+        <td style="font-size:11px">${(dr.user_parrain_activated_at||"").slice(0,16)}</td>
+        <td><button class="btn-action view" onclick="approveDriver(${dr.user_id},'${dr.udetails_first_name}')">✅ Approuver</button></td>
+    </tr>`).join("");
+}
+
+async function approveDriver(driverId, name) {
+    if (!confirm("Approuver " + name + " comme livreur ambassadeur ?")) return;
+    const d = await api("approve_driver", {driver_id: driverId});
+    if (d && d.success) { alert("✅ " + d.message); loadPendingDrivers(); loadApprovedDrivers(); }
+    else { alert("Erreur: " + (d ? d.message : "Connexion échouée")); }
+}
+
+async function loadApprovedDrivers() {
+    const d = await api("parrains");
+    if (!d || !d.success) return;
+    const tb = document.getElementById("driversApprovedList");
+    if (!d.parrains || !d.parrains.length) { tb.innerHTML = "<tr><td colspan=\"6\" class=\"empty\">Aucun livreur approuvé</td></tr>"; return; }
+    tb.innerHTML = d.parrains.map(p => `<tr>
+        <td>${p.user_id}</td><td>${p.udetails_first_name}</td>
+        <td style="font-size:11px">${p.user_email||"-"}</td>
+        <td><strong>${p.user_referral_code}</strong></td>
+        <td>${p.nb_filleuls}</td>
+        <td style="color:var(--success)">${parseFloat(p.gains_valides).toFixed(2)} DT</td>
+    </tr>`).join("");
 }
 </script>
 </body>
