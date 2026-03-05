@@ -186,6 +186,10 @@
         <span class="tab-icon">🎁</span>
         <span id="tabSponsoredText">J'ai un code</span>
     </button>
+    <button class="tab" onclick="switchTab('driver')" id="tabDriver">
+        <span class="tab-icon">🚗</span>
+        <span id="tabDriverText">Livreur</span>
+    </button>
 </div>
 
 <div class="content">
@@ -317,6 +321,64 @@
     </div>
 </div>
 
+<div class="panel" id="panelDriver">
+    <div class="card" id="driverLoginCard">
+        <div class="card-title">🚗 <span id="driverLoginTitle">Espace Livreur Ambassadeur</span></div>
+        <p style="color:var(--text-light);font-size:14px;margin-bottom:16px" id="driverLoginDesc">Livreur SpeedDelivro ? Activez votre espace ambassadeur et gagnez en parrainant vos clients.</p>
+        <div class="input-group">
+            <label id="driverEmailLabel">Votre email SpeedDelivro</label>
+            <input type="email" id="driverEmail" placeholder="votre@email.com">
+        </div>
+        <button class="btn-submit" id="driverSendOtpBtn" onclick="sendDriverOtp()">📧 <span id="driverSendOtpText">Recevoir le code</span></button>
+        <div class="error-msg" id="driverStep1Error"></div>
+    </div>
+    <div class="card" id="driverOtpCard" style="display:none">
+        <div class="card-title">🔐 <span id="driverOtpTitle">Code de vérification</span></div>
+        <p id="driverOtpSentTo" style="color:var(--text-light);font-size:14px;margin-bottom:16px"></p>
+        <div id="driverOtpInputs" style="display:flex;gap:8px;justify-content:center;margin-bottom:16px">
+            <input type="tel" maxlength="1" inputmode="numeric" style="width:44px;height:52px;text-align:center;font-size:22px;font-weight:700;border:2px solid var(--border);border-radius:10px;font-family:monospace" oninput="driverOtpNext(this,0)" onkeydown="driverOtpBack(event,0)">
+            <input type="tel" maxlength="1" inputmode="numeric" style="width:44px;height:52px;text-align:center;font-size:22px;font-weight:700;border:2px solid var(--border);border-radius:10px;font-family:monospace" oninput="driverOtpNext(this,1)" onkeydown="driverOtpBack(event,1)">
+            <input type="tel" maxlength="1" inputmode="numeric" style="width:44px;height:52px;text-align:center;font-size:22px;font-weight:700;border:2px solid var(--border);border-radius:10px;font-family:monospace" oninput="driverOtpNext(this,2)" onkeydown="driverOtpBack(event,2)">
+            <input type="tel" maxlength="1" inputmode="numeric" style="width:44px;height:52px;text-align:center;font-size:22px;font-weight:700;border:2px solid var(--border);border-radius:10px;font-family:monospace" oninput="driverOtpNext(this,3)" onkeydown="driverOtpBack(event,3)">
+            <input type="tel" maxlength="1" inputmode="numeric" style="width:44px;height:52px;text-align:center;font-size:22px;font-weight:700;border:2px solid var(--border);border-radius:10px;font-family:monospace" oninput="driverOtpNext(this,4)" onkeydown="driverOtpBack(event,4)">
+            <input type="tel" maxlength="1" inputmode="numeric" style="width:44px;height:52px;text-align:center;font-size:22px;font-weight:700;border:2px solid var(--border);border-radius:10px;font-family:monospace" oninput="driverOtpNext(this,5)" onkeydown="driverOtpBack(event,5)">
+        </div>
+        <button class="btn-submit" id="driverVerifyBtn" onclick="verifyDriverOtp()" disabled>✅ <span id="driverVerifyText">Valider</span></button>
+        <div class="error-msg" id="driverStep2Error"></div>
+    </div>
+    <div class="card" id="driverPendingCard" style="display:none">
+        <div style="text-align:center;padding:20px">
+            <div style="font-size:48px;margin-bottom:12px">⏳</div>
+            <h3 id="driverPendingTitle" style="color:var(--primary)">Demande en cours de validation</h3>
+            <p id="driverPendingMsg" style="color:var(--text-light);font-size:14px;line-height:1.6">Votre demande a été enregistrée. Un administrateur va valider votre compte ambassadeur sous 24-48h. Vous recevrez un email de confirmation.</p>
+        </div>
+    </div>
+    <div class="card" id="driverDashCard" style="display:none">
+        <div class="card-title">🚗 <span id="driverDashTitle">Mon espace Ambassadeur Livreur</span></div>
+        <div style="background:var(--bg);border-radius:12px;padding:16px;margin-bottom:12px">
+            <div style="font-size:12px;color:var(--text-light);margin-bottom:4px" id="driverCodeLabel">Votre code ambassadeur</div>
+            <div style="font-size:28px;font-weight:900;color:var(--primary);letter-spacing:4px" id="driverCode">---</div>
+            <div style="display:flex;gap:8px;margin-top:10px">
+                <button class="btn btn-copy" onclick="copyDriverCode()">📋 Copier</button>
+                <button class="btn" style="background:var(--success);color:#fff;border:none;padding:8px 14px;border-radius:8px;font-family:Tajawal;font-weight:700;cursor:pointer" onclick="shareDriverWhatsApp()">📤 WhatsApp</button>
+            </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+            <div style="background:var(--bg);border-radius:10px;padding:14px;text-align:center">
+                <div style="font-size:22px;font-weight:800;color:var(--primary)" id="driverTotalFilleuls">0</div>
+                <div style="font-size:12px;color:var(--text-light)">Clients recrutés</div>
+            </div>
+            <div style="background:var(--bg);border-radius:10px;padding:14px;text-align:center">
+                <div style="font-size:22px;font-weight:800;color:var(--success)" id="driverTotalEarnings">0 DT</div>
+                <div style="font-size:12px;color:var(--text-light)">Gains validés</div>
+            </div>
+        </div>
+        <div style="background:#fff8e1;border-radius:10px;padding:12px;text-align:center">
+            <div style="font-size:13px;color:#e8a020;font-weight:600" id="driverPendingEarnings">0 DT en attente</div>
+            <div style="font-size:11px;color:var(--text-light)">Validation sous 48h</div>
+        </div>
+    </div>
+</div>
 <script>
 const API = 'https://speeddelivro.com/api-parrain.php';
 let currentLang = 'fr';
@@ -423,6 +485,7 @@ function switchTab(tab) {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
     if (tab === 'sponsor') { document.getElementById('tabSponsor').classList.add('active'); document.getElementById('panelSponsor').classList.add('active'); }
+    else if (tab === 'driver') { document.getElementById('tabDriver').classList.add('active'); document.getElementById('panelDriver').classList.add('active'); }
     else { document.getElementById('tabSponsored').classList.add('active'); document.getElementById('panelSponsored').classList.add('active'); }
 }
 
@@ -587,6 +650,60 @@ const params = new URLSearchParams(window.location.search);
 if (params.get('code')) { switchTab('sponsored'); document.getElementById('filleulCode').value = params.get('code').toUpperCase(); checkCodeLive(document.getElementById('filleulCode')); }
 if (params.get('lang')) { setLang(params.get('lang')); }
 if (params.get('tab') === 'sponsor') { switchTab('sponsor'); }
+
+// ========== DRIVER AMBASSADOR ==========
+async function sendDriverOtp() {
+    const email = document.getElementById('driverEmail').value.trim();
+    if (!email.includes('@')) { document.getElementById('driverStep1Error').textContent = 'Email invalide'; document.getElementById('driverStep1Error').classList.add('show'); return; }
+    document.getElementById('driverSendOtpBtn').disabled = true;
+    document.getElementById('driverStep1Error').classList.remove('show');
+    try {
+        const data = await apiCall({ action:'register_driver', step:'send_otp', email });
+        if (!data.success) { document.getElementById('driverStep1Error').textContent = data.message; document.getElementById('driverStep1Error').classList.add('show'); document.getElementById('driverSendOtpBtn').disabled = false; return; }
+        document.getElementById('driverLoginCard').style.display = 'none';
+        document.getElementById('driverOtpCard').style.display = 'block';
+        document.getElementById('driverOtpSentTo').textContent = 'Code envoyé à ' + email;
+        document.querySelectorAll('#driverOtpInputs input')[0].focus();
+    } catch(e) { document.getElementById('driverStep1Error').textContent = 'Erreur réseau'; document.getElementById('driverStep1Error').classList.add('show'); document.getElementById('driverSendOtpBtn').disabled = false; }
+}
+
+function driverOtpNext(input, idx) {
+    input.value = input.value.replace(/\D/g, '');
+    if (input.value && idx < 5) document.querySelectorAll('#driverOtpInputs input')[idx + 1].focus();
+    const full = Array.from(document.querySelectorAll('#driverOtpInputs input')).every(i => i.value);
+    document.getElementById('driverVerifyBtn').disabled = !full;
+    if (full) verifyDriverOtp();
+}
+
+function driverOtpBack(e, idx) {
+    if (e.key === 'Backspace' && !e.target.value && idx > 0) document.querySelectorAll('#driverOtpInputs input')[idx - 1].focus();
+}
+
+async function verifyDriverOtp() {
+    const inputs = document.querySelectorAll('#driverOtpInputs input');
+    const otp = Array.from(inputs).map(i => i.value).join('');
+    if (otp.length !== 6) return;
+    const email = document.getElementById('driverEmail').value.trim();
+    document.getElementById('driverVerifyBtn').disabled = true;
+    document.getElementById('driverStep2Error').classList.remove('show');
+    try {
+        const data = await apiCall({ action:'register_driver', step:'verify_otp', email, otp });
+        if (!data.success) { document.getElementById('driverStep2Error').textContent = data.message; document.getElementById('driverStep2Error').classList.add('show'); document.getElementById('driverVerifyBtn').disabled = false; inputs.forEach(i => i.value = ''); inputs[0].focus(); return; }
+        document.getElementById('driverOtpCard').style.display = 'none';
+        if (data.status === 'pending') {
+            document.getElementById('driverPendingCard').style.display = 'block';
+        } else if (data.status === 'approved') {
+            document.getElementById('driverCode').textContent = data.referral_code;
+            document.getElementById('driverTotalFilleuls').textContent = data.total_filleuls;
+            document.getElementById('driverTotalEarnings').textContent = parseFloat(data.total_earnings).toFixed(2) + ' DT';
+            document.getElementById('driverPendingEarnings').textContent = parseFloat(data.pending_earnings).toFixed(2) + ' DT en attente';
+            document.getElementById('driverDashCard').style.display = 'block';
+        }
+    } catch(e) { document.getElementById('driverStep2Error').textContent = 'Erreur réseau'; document.getElementById('driverStep2Error').classList.add('show'); document.getElementById('driverVerifyBtn').disabled = false; }
+}
+
+function copyDriverCode() { const code = document.getElementById('driverCode').textContent; navigator.clipboard.writeText(code).then(() => { const btn = event.target.closest('.btn-copy'); const orig = btn.innerHTML; btn.innerHTML = '✅ Copié'; setTimeout(() => btn.innerHTML = orig, 2000); }); }
+function shareDriverWhatsApp() { const code = document.getElementById('driverCode').textContent; window.open('https://wa.me/?text=' + encodeURIComponent('Commandez sur SpeedDelivro avec mon code ' + code + ' et profitez d\'une réduction !'), '_blank'); }
 </script>
 </body>
 </html>
