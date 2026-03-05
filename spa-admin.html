@@ -479,7 +479,7 @@ async function approveDriver(driverId, name) {
 }
 
 async function loadApprovedDrivers() {
-    const d = await api("parrains");
+    const d = await api("approved_drivers");
     if (!d || !d.success) return;
     const tb = document.getElementById("driversApprovedList");
     if (!d.parrains || !d.parrains.length) { tb.innerHTML = "<tr><td colspan=\"6\" class=\"empty\">Aucun livreur approuvé</td></tr>"; return; }
