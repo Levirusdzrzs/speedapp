@@ -650,6 +650,7 @@ const params = new URLSearchParams(window.location.search);
 if (params.get('code')) { switchTab('sponsored'); document.getElementById('filleulCode').value = params.get('code').toUpperCase(); checkCodeLive(document.getElementById('filleulCode')); }
 if (params.get('lang')) { setLang(params.get('lang')); }
 if (params.get('tab') === 'sponsor') { switchTab('sponsor'); }
+loadLeaderboard();
 
 // ========== DRIVER AMBASSADOR ==========
 async function sendDriverOtp() {
@@ -703,7 +704,120 @@ async function verifyDriverOtp() {
 }
 
 function copyDriverCode() { const code = document.getElementById('driverCode').textContent; navigator.clipboard.writeText(code).then(() => { const btn = event.target.closest('.btn-copy'); const orig = btn.innerHTML; btn.innerHTML = '✅ Copié'; setTimeout(() => btn.innerHTML = orig, 2000); }); }
+
+// === LEADERBOARD ===
+async function loadLeaderboard() {
+    try {
+        const email = localStorage.getItem('spa_email') || '';
+        const r = await fetch('https://speeddelivro.com/api-parrain.php', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({action: 'get_leaderboard', email: email})
+        });
+        const d = await r.json();
+        if (!d.success) return;
+
+        // Mensuel
+        const medals = ['🥇', '🥈', '🥉'];
+        const bonuses = ['50 DT', '25 DT', '10 DT'];
+        const mensuelEl = document.getElementById('lbMensuelCards');
+        if (mensuelEl) {
+            if (d.mensuel && d.mensuel.length > 0) {
+                mensuelEl.innerHTML = d.mensuel.map((m, i) => `
+                    <div class="lb-card lb-rank-${m.lb_rank}">
+                        <div class="lb-medal">${medals[m.lb_rank-1]}</div>
+                        <div class="lb-code">${m.user_referral_code}</div>
+                        <div class="lb-score">${m.lb_score} pts</div>
+                        <div class="lb-bonus">${bonuses[m.lb_rank-1]}</div>
+                    </div>`).join('');
+                if (d.mensuel_mois) document.getElementById('lbMensuelMois').textContent = d.mensuel_mois;
+            } else {
+                mensuelEl.innerHTML = '<p style="text-align:center;color:#94a3b8;font-size:13px;padding:12px;">Résultats disponibles fin du mois</p>';
+            }
+        }
+
+        // Hebdo
+        const hebdoEl = document.getElementById('lbHebdoList');
+        if (hebdoEl) {
+            if (d.hebdo && d.hebdo.length > 0) {
+                hebdoEl.innerHTML = d.hebdo.slice(0, 5).map((h, i) => `
+                    <div class="lb-hebdo-row">
+                        <span class="lb-hebdo-rank">#${i+1}</span>
+                        <span class="lb-hebdo-code">${h.user_referral_code}</span>
+                        <span class="lb-hebdo-score">+${h.cmds_semaine} cmds</span>
+                    </div>`).join('');
+            } else {
+                hebdoEl.innerHTML = '<p style="text-align:center;color:#94a3b8;font-size:13px;padding:12px;">Aucune activité cette semaine</p>';
+            }
+        }
+
+        // Position personnelle
+        const posEl = document.getElementById('lbMyPosition');
+        if (posEl && d.position) {
+            const p = d.position;
+            posEl.style.display = 'block';
+            document.getElementById('lbMyRang').textContent = '#' + p.rang;
+            document.getElementById('lbMyScore').textContent = p.score + ' commandes cette semaine';
+            document.getElementById('lbMyDelta').textContent = p.delta_top > 0
+                ? 'Encore ' + p.delta_top + ' commandes pour monter d\'un rang'
+                : 'Tu es dans le top !';
+        }
+    } catch(e) { console.error('LB error', e); }
+}
 function shareDriverWhatsApp() { const code = document.getElementById('driverCode').textContent; window.open('https://wa.me/?text=' + encodeURIComponent('Commandez sur SpeedDelivro avec mon code ' + code + ' et profitez d\'une réduction !'), '_blank'); }
 </script>
+
+<!-- LEADERBOARD SECTION -->
+<div class="leaderboard-section">
+    <div class="lb-header">
+        <h2>🏆 <span id="lbTitleMensuel">Top Ambassadeurs du Mois</span></h2>
+        <span class="lb-month-badge" id="lbMensuelMois"></span>
+    </div>
+    <div class="lb-mensuel-cards" id="lbMensuelCards">
+        <p style="text-align:center;color:#94a3b8;font-size:13px;padding:12px;">Chargement...</p>
+    </div>
+
+    <div class="lb-header" style="margin-top:20px;">
+        <h2>🔥 <span id="lbTitleHebdo">Top de la Semaine</span></h2>
+        <span style="font-size:11px;color:#94a3b8;">7 derniers jours</span>
+    </div>
+    <div class="lb-hebdo-list" id="lbHebdoList">
+        <p style="text-align:center;color:#94a3b8;font-size:13px;padding:12px;">Chargement...</p>
+    </div>
+
+    <div class="lb-my-position" id="lbMyPosition" style="display:none;">
+        <div class="lb-pos-title">📍 Ta position cette semaine</div>
+        <div class="lb-pos-rang" id="lbMyRang"></div>
+        <div class="lb-pos-score" id="lbMyScore"></div>
+        <div class="lb-pos-delta" id="lbMyDelta"></div>
+    </div>
+</div>
+
+<style>
+.leaderboard-section { max-width: 480px; margin: 24px auto 0; padding: 0 16px 32px; }
+.lb-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+.lb-header h2 { font-size:16px; font-weight:700; color:#1e293b; margin:0; }
+.lb-month-badge { background:#2563eb; color:#fff; font-size:11px; padding:2px 8px; border-radius:12px; }
+.lb-mensuel-cards { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+.lb-card { background:#fff; border-radius:16px; padding:16px 12px; text-align:center; min-width:90px; flex:1; box-shadow:0 2px 12px rgba(0,0,0,0.08); border-top:3px solid #e2e8f0; }
+.lb-rank-1 { border-top-color:#f59e0b; }
+.lb-rank-2 { border-top-color:#94a3b8; }
+.lb-rank-3 { border-top-color:#b45309; }
+.lb-medal { font-size:28px; margin-bottom:6px; }
+.lb-code { font-weight:700; font-size:14px; color:#1e293b; }
+.lb-score { font-size:12px; color:#64748b; margin-top:4px; }
+.lb-bonus { font-size:13px; font-weight:700; color:#16a34a; margin-top:6px; }
+.lb-hebdo-list { background:#fff; border-radius:16px; padding:8px; box-shadow:0 2px 12px rgba(0,0,0,0.08); }
+.lb-hebdo-row { display:flex; align-items:center; padding:10px 12px; border-bottom:1px solid #f1f5f9; }
+.lb-hebdo-row:last-child { border-bottom:none; }
+.lb-hebdo-rank { font-weight:700; color:#2563eb; width:28px; font-size:14px; }
+.lb-hebdo-code { flex:1; font-size:14px; color:#1e293b; font-weight:600; }
+.lb-hebdo-score { font-size:13px; color:#16a34a; font-weight:700; }
+.lb-my-position { background:linear-gradient(135deg,#2563eb,#1d4ed8); border-radius:16px; padding:16px; color:#fff; margin-top:16px; text-align:center; }
+.lb-pos-title { font-size:13px; opacity:0.85; margin-bottom:8px; }
+.lb-pos-rang { font-size:36px; font-weight:800; }
+.lb-pos-score { font-size:13px; opacity:0.9; margin-top:4px; }
+.lb-pos-delta { font-size:12px; opacity:0.75; margin-top:8px; font-style:italic; }
+</style>
 </body>
 </html>
