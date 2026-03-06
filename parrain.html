@@ -213,6 +213,9 @@
             </div>
             <button class="btn-submit" onclick="sendSponsorOtp()" id="loginBtn"><span id="loginBtnText">Accéder</span></button>
             <div style="text-align:center;margin-top:8px;">
+                <button onclick="showExistingOtp()" style="background:none;border:none;color:var(--primary);font-family:'Tajawal';font-size:13px;cursor:pointer;font-weight:600;">🔑 J'ai déjà un code</button>
+            </div>
+            <div style="text-align:center;margin-top:8px;">
                 <button id="togglePhoneBtn" style="background:none;border:none;color:var(--primary);font-family:'Tajawal';font-size:13px;cursor:pointer;font-weight:600;" onclick="togglePhoneLogin()">
                     <span id="togglePhoneText">Utiliser mon téléphone</span>
                 </button>
@@ -535,6 +538,16 @@ function logout() {
 
 async function apiCall(data) { const r = await fetch(API, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(data) }); return r.json(); }
 
+
+function showExistingOtp() {
+    const identifier = usePhoneLogin ? document.getElementById('sponsorPhone').value.replace(/\D/g,'') : document.getElementById('sponsorEmail').value.trim();
+    if (!identifier) { document.getElementById('loginError').textContent = 'Entrez votre email d\'abord'; document.getElementById('loginError').classList.add('show'); return; }
+    localStorage.setItem('spa_otp_email', identifier);
+    document.getElementById('sponsorLogin').style.display = 'none';
+    document.getElementById('sponsorOtpCard').style.display = 'block';
+    document.getElementById('sponsorOtpSentTo').textContent = 'Entrez le code reçu pour ' + identifier;
+    document.querySelectorAll('#sponsorOtpInputs input')[0].focus();
+}
 
 async function sendSponsorOtp() {
     const identifier = usePhoneLogin
