@@ -225,7 +225,7 @@
         <div id="sponsorOtpCard" class="card" style="display:none;">
             <div class="card-title">🔐 <span id="sponsorOtpTitle">Vérification</span></div>
             <p id="sponsorOtpSentTo" style="text-align:center;color:#64748b;font-size:13px;margin-bottom:16px;"></p>
-            <div class="otp-inputs" id="sponsorOtpInputs">
+            <div id="sponsorOtpInputs" style="display:flex;gap:8px;justify-content:center;margin-bottom:16px">
                 <input type="tel" maxlength="1" inputmode="numeric" oninput="sponsorOtpNext(this,0)" onkeydown="sponsorOtpBack(event,0)">
                 <input type="tel" maxlength="1" inputmode="numeric" oninput="sponsorOtpNext(this,1)" onkeydown="sponsorOtpBack(event,1)">
                 <input type="tel" maxlength="1" inputmode="numeric" oninput="sponsorOtpNext(this,2)" onkeydown="sponsorOtpBack(event,2)">
@@ -520,7 +520,7 @@ function logout() {
     document.getElementById('sponsorLogin').style.display = 'block';
     document.getElementById('logoutBtn').style.display = 'none';
     document.getElementById('mainTabs').style.display = 'flex';
-    document.getElementById('sponsorEmail').value = ''; localStorage.removeItem('spa_otp_token');
+    document.getElementById('sponsorEmail').value = ''; localStorage.removeItem('spa_otp_token'); localStorage.removeItem('spa_otp_email'); localStorage.removeItem('spa_otp_expiry');
     if (document.getElementById('sponsorPhone')) document.getElementById('sponsorPhone').value = '';
     dashboardData = null;
 }
@@ -587,6 +587,8 @@ async function verifySponsorOtp() {
             return;
         }
         localStorage.setItem('spa_otp_token', otp);
+        localStorage.setItem('spa_otp_email', email);
+        localStorage.setItem('spa_otp_expiry', Date.now() + 86400000);
         document.getElementById('sponsorOtpCard').style.display = 'none';
         loadDashboard();
     } catch(e) {
@@ -739,6 +741,14 @@ if (params.get('code')) { switchTab('sponsored'); document.getElementById('fille
 if (params.get('lang')) { setLang(params.get('lang')); }
 if (params.get('tab') === 'sponsor') { switchTab('sponsor'); }
 loadLeaderboard();
+// Auto-login parrain si session 24h valide
+const _token = localStorage.getItem('spa_otp_token');
+const _email = localStorage.getItem('spa_otp_email');
+const _expiry = parseInt(localStorage.getItem('spa_otp_expiry') || '0');
+if (_token && _email && _expiry > Date.now()) {
+    document.getElementById('sponsorEmail').value = _email;
+    loadDashboard();
+}
 
 // ========== DRIVER AMBASSADOR ==========
 async function sendDriverOtp() {
@@ -779,6 +789,8 @@ async function verifyDriverOtp() {
         const data = await apiCall({ action:'register_driver', step:'verify_otp', email, otp });
         if (!data.success) { document.getElementById('driverStep2Error').textContent = data.message; document.getElementById('driverStep2Error').classList.add('show'); document.getElementById('driverVerifyBtn').disabled = false; inputs.forEach(i => i.value = ''); inputs[0].focus(); return; }
         document.getElementById('driverOtpCard').style.display = 'none';
+document.getElementById('mainTabs').style.display = 'none';
+document.getElementById('logoutBtn').style.display = 'inline-flex';
         if (data.status === 'pending') {
             document.getElementById('driverPendingCard').style.display = 'block';
         } else if (data.status === 'approved') {
