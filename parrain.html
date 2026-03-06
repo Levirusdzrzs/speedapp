@@ -225,13 +225,13 @@
         <div id="sponsorOtpCard" class="card" style="display:none;">
             <div class="card-title">🔐 <span id="sponsorOtpTitle">Vérification</span></div>
             <p id="sponsorOtpSentTo" style="text-align:center;color:#64748b;font-size:13px;margin-bottom:16px;"></p>
-            <div id="sponsorOtpInputs" style="display:flex;gap:8px;justify-content:center;margin-bottom:16px">
-                <input type="tel" maxlength="1" inputmode="numeric" oninput="sponsorOtpNext(this,0)" onkeydown="sponsorOtpBack(event,0)">
-                <input type="tel" maxlength="1" inputmode="numeric" oninput="sponsorOtpNext(this,1)" onkeydown="sponsorOtpBack(event,1)">
-                <input type="tel" maxlength="1" inputmode="numeric" oninput="sponsorOtpNext(this,2)" onkeydown="sponsorOtpBack(event,2)">
-                <input type="tel" maxlength="1" inputmode="numeric" oninput="sponsorOtpNext(this,3)" onkeydown="sponsorOtpBack(event,3)">
-                <input type="tel" maxlength="1" inputmode="numeric" oninput="sponsorOtpNext(this,4)" onkeydown="sponsorOtpBack(event,4)">
-                <input type="tel" maxlength="1" inputmode="numeric" oninput="sponsorOtpNext(this,5)" onkeydown="sponsorOtpBack(event,5)">
+            <div id="sponsorOtpInputs" style="display:flex;gap:8px;justify-content:center;margin-bottom:16px;flex-wrap:nowrap;">
+                <input type="tel" maxlength="1" inputmode="numeric" style="width:42px;height:48px;text-align:center;font-size:20px;border:2px solid #e2e8f0;border-radius:10px;" oninput="sponsorOtpNext(this,0)" onkeydown="sponsorOtpBack(event,0)">
+                <input type="tel" maxlength="1" inputmode="numeric" style="width:42px;height:48px;text-align:center;font-size:20px;border:2px solid #e2e8f0;border-radius:10px;" oninput="sponsorOtpNext(this,1)" onkeydown="sponsorOtpBack(event,1)">
+                <input type="tel" maxlength="1" inputmode="numeric" style="width:42px;height:48px;text-align:center;font-size:20px;border:2px solid #e2e8f0;border-radius:10px;" oninput="sponsorOtpNext(this,2)" onkeydown="sponsorOtpBack(event,2)">
+                <input type="tel" maxlength="1" inputmode="numeric" style="width:42px;height:48px;text-align:center;font-size:20px;border:2px solid #e2e8f0;border-radius:10px;" oninput="sponsorOtpNext(this,3)" onkeydown="sponsorOtpBack(event,3)">
+                <input type="tel" maxlength="1" inputmode="numeric" style="width:42px;height:48px;text-align:center;font-size:20px;border:2px solid #e2e8f0;border-radius:10px;" oninput="sponsorOtpNext(this,4)" onkeydown="sponsorOtpBack(event,4)">
+                <input type="tel" maxlength="1" inputmode="numeric" style="width:42px;height:48px;text-align:center;font-size:20px;border:2px solid #e2e8f0;border-radius:10px;" oninput="sponsorOtpNext(this,5)" onkeydown="sponsorOtpBack(event,5)">
             </div>
             <button class="btn-submit" id="sponsorVerifyBtn" onclick="verifySponsorOtp()" disabled>Vérifier</button>
             <div class="error-msg" id="sponsorOtpError"></div>
@@ -520,9 +520,17 @@ function logout() {
     document.getElementById('sponsorLogin').style.display = 'block';
     document.getElementById('logoutBtn').style.display = 'none';
     document.getElementById('mainTabs').style.display = 'flex';
-    document.getElementById('sponsorEmail').value = ''; localStorage.removeItem('spa_otp_token'); localStorage.removeItem('spa_otp_email'); localStorage.removeItem('spa_otp_expiry');
+    document.getElementById('sponsorEmail').value = '';
+    localStorage.removeItem('spa_otp_token'); localStorage.removeItem('spa_otp_email'); localStorage.removeItem('spa_otp_expiry');
     if (document.getElementById('sponsorPhone')) document.getElementById('sponsorPhone').value = '';
     dashboardData = null;
+    // Reset leaderboard position
+    const posEl = document.getElementById('lbMyPosition'); if (posEl) posEl.style.display = 'none';
+    // Reset livreur
+    const dc = document.getElementById('driverDashCard'); if (dc) dc.style.display = 'none';
+    const pc = document.getElementById('driverPendingCard'); if (pc) pc.style.display = 'none';
+    document.getElementById('driverLoginCard').style.display = 'block';
+    switchTab('sponsor');
 }
 
 async function apiCall(data) { const r = await fetch(API, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(data) }); return r.json(); }
@@ -747,6 +755,7 @@ const _email = localStorage.getItem('spa_otp_email');
 const _expiry = parseInt(localStorage.getItem('spa_otp_expiry') || '0');
 if (_token && _email && _expiry > Date.now()) {
     document.getElementById('sponsorEmail').value = _email;
+    document.getElementById('loginBtn').disabled = true;
     loadDashboard();
 }
 
