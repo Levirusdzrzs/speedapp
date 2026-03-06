@@ -211,7 +211,7 @@
                     </div>
                 </div>
             </div>
-            <button class="btn-submit" onclick="loadDashboard()" id="loginBtn">Accéder</button>
+            <button class="btn-submit" onclick="sendSponsorOtp()" id="loginBtn"><span id="loginBtnText">Accéder</span></button>
             <div style="text-align:center;margin-top:8px;">
                 <button id="togglePhoneBtn" style="background:none;border:none;color:var(--primary);font-family:'Tajawal';font-size:13px;cursor:pointer;font-weight:600;" onclick="togglePhoneLogin()">
                     <span id="togglePhoneText">Utiliser mon téléphone</span>
@@ -220,6 +220,25 @@
             <div class="error-msg" id="loginError"></div>
         </div>
 
+        
+        <!-- OTP Parrain -->
+        <div id="sponsorOtpCard" class="card" style="display:none;">
+            <div class="card-title">🔐 <span id="sponsorOtpTitle">Vérification</span></div>
+            <p id="sponsorOtpSentTo" style="text-align:center;color:#64748b;font-size:13px;margin-bottom:16px;"></p>
+            <div class="otp-inputs" id="sponsorOtpInputs">
+                <input type="tel" maxlength="1" inputmode="numeric" oninput="sponsorOtpNext(this,0)" onkeydown="sponsorOtpBack(event,0)">
+                <input type="tel" maxlength="1" inputmode="numeric" oninput="sponsorOtpNext(this,1)" onkeydown="sponsorOtpBack(event,1)">
+                <input type="tel" maxlength="1" inputmode="numeric" oninput="sponsorOtpNext(this,2)" onkeydown="sponsorOtpBack(event,2)">
+                <input type="tel" maxlength="1" inputmode="numeric" oninput="sponsorOtpNext(this,3)" onkeydown="sponsorOtpBack(event,3)">
+                <input type="tel" maxlength="1" inputmode="numeric" oninput="sponsorOtpNext(this,4)" onkeydown="sponsorOtpBack(event,4)">
+                <input type="tel" maxlength="1" inputmode="numeric" oninput="sponsorOtpNext(this,5)" onkeydown="sponsorOtpBack(event,5)">
+            </div>
+            <button class="btn-submit" id="sponsorVerifyBtn" onclick="verifySponsorOtp()" disabled>Vérifier</button>
+            <div class="error-msg" id="sponsorOtpError"></div>
+            <div style="text-align:center;margin-top:8px;">
+                <button onclick="document.getElementById('sponsorOtpCard').style.display='none';document.getElementById('sponsorLogin').style.display='block';" style="background:none;border:none;color:var(--primary);font-size:13px;cursor:pointer;">← Retour</button>
+            </div>
+        </div>
         <div id="sponsorDashboard" style="display:none;">
             <div class="card">
                 <div class="card-title">🔗 <span id="codeTitle">Votre code parrain</span></div>
@@ -501,13 +520,81 @@ function logout() {
     document.getElementById('sponsorLogin').style.display = 'block';
     document.getElementById('logoutBtn').style.display = 'none';
     document.getElementById('mainTabs').style.display = 'flex';
-    document.getElementById('sponsorEmail').value = '';
+    document.getElementById('sponsorEmail').value = ''; localStorage.removeItem('spa_otp_token');
     if (document.getElementById('sponsorPhone')) document.getElementById('sponsorPhone').value = '';
     dashboardData = null;
 }
 
 async function apiCall(data) { const r = await fetch(API, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(data) }); return r.json(); }
 
+
+async function sendSponsorOtp() {
+    const identifier = usePhoneLogin
+        ? document.getElementById('sponsorPhone').value.replace(/\D/g,'')
+        : document.getElementById('sponsorEmail').value.trim();
+    if (!identifier) return;
+    document.getElementById('loginBtn').disabled = true;
+    document.getElementById('loginError').classList.remove('show');
+    try {
+        const payload = usePhoneLogin
+            ? { action:'send_otp_parrain', phone: identifier }
+            : { action:'send_otp_parrain', email: identifier };
+        const data = await apiCall(payload);
+        if (!data.success) {
+            document.getElementById('loginError').textContent = data.message;
+            document.getElementById('loginError').classList.add('show');
+            document.getElementById('loginBtn').disabled = false;
+            return;
+        }
+        localStorage.setItem('spa_email', identifier);
+        document.getElementById('sponsorLogin').style.display = 'none';
+        document.getElementById('sponsorOtpCard').style.display = 'block';
+        document.getElementById('sponsorOtpSentTo').textContent = 'Code envoyé à ' + identifier;
+        document.querySelectorAll('#sponsorOtpInputs input')[0].focus();
+    } catch(e) {
+        document.getElementById('loginError').textContent = 'Erreur réseau';
+        document.getElementById('loginError').classList.add('show');
+        document.getElementById('loginBtn').disabled = false;
+    }
+}
+
+function sponsorOtpNext(input, idx) {
+    input.value = input.value.replace(/\D/g,'');
+    if (input.value && idx < 5) document.querySelectorAll('#sponsorOtpInputs input')[idx+1].focus();
+    const full = Array.from(document.querySelectorAll('#sponsorOtpInputs input')).every(i => i.value);
+    document.getElementById('sponsorVerifyBtn').disabled = !full;
+    if (full) verifySponsorOtp();
+}
+
+function sponsorOtpBack(e, idx) {
+    if (e.key === 'Backspace' && !e.target.value && idx > 0) document.querySelectorAll('#sponsorOtpInputs input')[idx-1].focus();
+}
+
+async function verifySponsorOtp() {
+    const inputs = document.querySelectorAll('#sponsorOtpInputs input');
+    const otp = Array.from(inputs).map(i => i.value).join('');
+    if (otp.length !== 6) return;
+    const email = localStorage.getItem('spa_email') || document.getElementById('sponsorEmail').value.trim();
+    document.getElementById('sponsorVerifyBtn').disabled = true;
+    document.getElementById('sponsorOtpError').classList.remove('show');
+    try {
+        const data = await apiCall({ action:'verify_otp_parrain', email, otp });
+        if (!data.success) {
+            document.getElementById('sponsorOtpError').textContent = data.message;
+            document.getElementById('sponsorOtpError').classList.add('show');
+            document.getElementById('sponsorVerifyBtn').disabled = false;
+            inputs.forEach(i => i.value = ''); inputs[0].focus();
+            return;
+        }
+        localStorage.setItem('spa_otp_token', otp);
+        document.getElementById('sponsorOtpCard').style.display = 'none';
+        loadDashboard();
+    } catch(e) {
+        document.getElementById('sponsorOtpError').textContent = 'Erreur réseau';
+        document.getElementById('sponsorOtpError').classList.add('show');
+        document.getElementById('sponsorVerifyBtn').disabled = false;
+    }
+}
 async function loadDashboard() {
     let identifier;
     if (usePhoneLogin) { identifier = document.getElementById('sponsorPhone').value.replace(/\D/g, ''); if (identifier.length < 8) return; }
@@ -516,7 +603,8 @@ async function loadDashboard() {
     document.getElementById('sponsorLoading').classList.add('show');
     document.getElementById('loginError').classList.remove('show');
     try {
-        const payload = usePhoneLogin ? { action:'get_stats', phone: identifier } : { action:'get_stats', email: identifier };
+        const otpToken = localStorage.getItem('spa_otp_token') || '';
+        const payload = usePhoneLogin ? { action:'get_stats', phone: identifier, otp_email: localStorage.getItem('spa_email')||identifier, otp_token: otpToken } : { action:'get_stats', email: identifier, otp_token: otpToken };
         const data = await apiCall(payload);
         document.getElementById('sponsorLoading').classList.remove('show');
         if (!data.success) {
