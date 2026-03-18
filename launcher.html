@@ -26,8 +26,10 @@
     </style>
 </head>
 <body>
-    <script>if (localStorage.getItem('admin_auth') !== 'true') window.location.replace('auth.html');</script>
-
+    <script>
+const _sess = localStorage.getItem('speeddelivro_admin_session');
+if (!_sess || JSON.parse(_sess).expiry < Math.floor(Date.now()/1000)) window.location.replace('auth.html');
+</script>
     <iframe id="contentFrame" src="admin-order.html"></iframe>
     <div id="statusBar">⏸️ Radar OFF</div>
     <div id="bgModeBtn" class="bg-inactive" onclick="toggleRadar()">🔕 Radar OFF</div>
