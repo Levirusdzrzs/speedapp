@@ -89,7 +89,7 @@
                         expiry: data.expiry,
                         timestamp: Date.now()
                     }));
-                    window.location.href = 'admin-order.html';
+window.location.href = 'launcher.html';
                 } else {
                     throw new Error(data.msg || 'Identifiants incorrects');
                 }
@@ -108,7 +108,7 @@
         if (session) {
             const data = JSON.parse(session);
             if (data.expiry && data.expiry > Math.floor(Date.now() / 1000)) {
-                window.location.href = 'admin-order.html';
+window.location.href = 'launcher.html';
             } else {
                 localStorage.removeItem('speeddelivro_admin_session');
             }
