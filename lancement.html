@@ -32,8 +32,299 @@
             position: relative;
         }
 
-        /* Pattern de points comme sur les visuels SpeedDelivro */
+        /* Pattern de points */
         body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 50%;
+            height: 100%;
+            background-image: radial-gradient(circle, rgba(255,255,255,0.1) 2px, transparent 2px);
+            background-size: 20px 20px;
+            pointer-events: none;
+        }
+
+        .video-background {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            z-index: -1;
+            opacity: 0.3;
+            object-fit: cover;
+        }
+
+        .container {
+            text-align: center;
+            padding: 20px;
+            max-width: 500px;
+            width: 100%;
+            z-index: 10;
+            animation: fadeIn 1s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .logo-container {
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            width: 180px;
+            height: auto;
+            filter: drop-shadow(0 4px 20px rgba(249, 115, 22, 0.4));
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .tagline {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-top: 10px;
+        }
+
+        .title {
+            color: #fff;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .title span {
+            color: #f97316;
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 16px;
+            margin-bottom: 40px;
+        }
+
+        /* Compteur */
+        .countdown-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px 20px;
+            margin-bottom: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .countdown {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .time-block {
+            background: linear-gradient(180deg, #2563eb 0%, #1d4ed8 100%);
+            border-radius: 12px;
+            padding: 15px 12px;
+            min-width: 70px;
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .time-block::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .time-number {
+            font-size: 36px;
+            font-weight: 700;
+            color: #fff;
+            line-height: 1;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .time-label {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.8);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 8px;
+        }
+
+        .separator {
+            font-size: 36px;
+            color: #f97316;
+            font-weight: bold;
+            align-self: center;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .launch-date {
+            color: #f97316;
+            font-size: 14px;
+            margin-top: 20px;
+            font-weight: 600;
+        }
+
+        /* Boutons Store - badges officiels cote a cote */
+        .store-buttons {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .store-btn {
+            display: inline-block;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-radius: 8px;
+        }
+
+        .store-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .store-btn img {
+            height: 50px;
+            width: auto;
+            display: block;
+        }
+
+        /* Responsive */
+        @media (max-width: 400px) {
+            .time-block {
+                min-width: 60px;
+                padding: 12px 8px;
+            }
+
+            .time-number {
+                font-size: 28px;
+            }
+
+            .countdown {
+                gap: 6px;
+            }
+
+            .separator {
+                font-size: 28px;
+            }
+
+            .store-btn img {
+                height: 44px;
+            }
+
+            .store-buttons {
+                gap: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Video de fond -->
+    <video class="video-background" autoplay muted loop playsinline>
+        <source src="compteur-vid.mp4" type="video/mp4">
+    </video>
+
+    <div class="container">
+        <div class="logo-container">
+            <img src="logospeeddelivro.png" alt="SpeedDelivro" class="logo">
+            <p class="tagline">La ou la vitesse rencontre la fiabilite</p>
+        </div>
+
+        <h1 class="title">Lancement <span>Imminent</span></h1>
+        <p class="subtitle">Préparez-vous à commander plus vite que jamais ! 🚀</p>
+
+        <div class="countdown-container">
+            <div class="countdown" id="countdown">
+                <div class="time-block">
+                    <div class="time-number" id="days">00</div>
+                    <div class="time-label">Jours</div>
+                </div>
+                <span class="separator">:</span>
+                <div class="time-block">
+                    <div class="time-number" id="hours">00</div>
+                    <div class="time-label">Heures</div>
+                </div>
+                <span class="separator">:</span>
+                <div class="time-block">
+                    <div class="time-number" id="minutes">00</div>
+                    <div class="time-label">Minutes</div>
+                </div>
+                <span class="separator">:</span>
+                <div class="time-block">
+                    <div class="time-number" id="seconds">00</div>
+                    <div class="time-label">Secondes</div>
+                </div>
+            </div>
+            <p class="launch-date">01 Mai 2026 à 10h00</p>
+        </div>
+
+        <div class="store-buttons">
+            <a href="https://play.google.com/store/apps/details?id=com.speed.delivro.buyer&hl=fr" class="store-btn" target="_blank" rel="noopener">
+                <img src="https://play.google.com/intl/fr_fr/badges/static/images/badges/fr_badge_web_generic.png" alt="Disponible sur Google Play">
+            </a>
+            <a href="https://apps.apple.com/fr/app/speeddelivro/id6747889248" class="store-btn" target="_blank" rel="noopener">
+                <img src="https://tools.applemediaservices.com/api/badges/download-on-the-app-store/black/fr-fr?size=250x83" alt="Télécharger dans l'App Store">
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Date de lancement: 01 Mai 2026 a 10h00 (heure locale Tunisie GMT+1)
+        const launchDate = new Date('2026-05-01T10:00:00+01:00').getTime();
+
+        function updateCountdown() {
+            const now = new Date().getTime();
+            const distance = launchDate - now;
+
+            if (distance <= 0) {
+                document.getElementById('days').textContent = '00';
+                document.getElementById('hours').textContent = '00';
+                document.getElementById('minutes').textContent = '00';
+                document.getElementById('seconds').textContent = '00';
+                return;
+            }
+
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            document.getElementById('days').textContent = days.toString().padStart(2, '0');
+            document.getElementById('hours').textContent = hours.toString().padStart(2, '0');
+            document.getElementById('minutes').textContent = minutes.toString().padStart(2, '0');
+            document.getElementById('seconds').textContent = seconds.toString().padStart(2, '0');
+        }
+
+        updateCountdown();
+        setInterval(updateCountdown, 1000);
+    </script>
+</body>
+</html>
             content: '';
             position: absolute;
             top: 0;
