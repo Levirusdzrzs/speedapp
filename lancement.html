@@ -1,14 +1,17 @@
 <!DOCTYPE html>
 <html lang="fr">
-<head>                                                    <meta charset="UTF-8">
+<head>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SpeedDelivro - Bientôt Disponible</title>      <meta name="description" content="SpeedDelivro arrive bientôt! Là où la vitesse rencontre la fiabilité.">
+    <title>SpeedDelivro - Bientôt Disponible</title>
+    <meta name="description" content="SpeedDelivro arrive bientôt! Là où la vitesse rencontre la fiabilité.">
     <meta name="theme-color" content="#2563eb">
 
     <!-- Open Graph -->
     <meta property="og:title" content="SpeedDelivro - Lancement 01 Mai 2026">
     <meta property="og:description" content="L'application de livraison la plus rapide arrive bientôt !">
-    <meta property="og:image" content="https://app.speeddelivro.com/CLIENT.png">                            
+    <meta property="og:image" content="https://app.speeddelivro.com/CLIENT.png">
+
     <link rel="icon" href="logospeeddelivro.png" type="image/png">
 
     <style>
@@ -29,6 +32,7 @@
             position: relative;
         }
 
+        /* Pattern de points */
         body::before {
             content: '';
             position: absolute;
@@ -110,6 +114,7 @@
             margin-bottom: 40px;
         }
 
+        /* Compteur */
         .countdown-container {
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
@@ -182,6 +187,7 @@
             font-weight: 600;
         }
 
+        /* Boutons Store - badges officiels cote a cote */
         .store-buttons {
             display: flex;
             flex-direction: row;
@@ -203,11 +209,12 @@
         }
 
         .store-btn img {
-            height: 50px;
-            width: auto;
+            width: 160px;
+            height: auto;
             display: block;
         }
 
+        /* Responsive */
         @media (max-width: 400px) {
             .time-block {
                 min-width: 60px;
@@ -227,7 +234,7 @@
             }
 
             .store-btn img {
-                height: 44px;
+                width: 140px;
             }
 
             .store-buttons {
@@ -237,6 +244,7 @@
     </style>
 </head>
 <body>
+    <!-- Video de fond -->
     <video class="video-background" autoplay muted loop playsinline>
         <source src="compteur-vid.mp4" type="video/mp4">
     </video>
@@ -276,7 +284,7 @@
         </div>
 
         <div class="store-buttons">
-            <a href="https://play.google.com/store/apps/details?id=com.speed.delivro.buyer&hl=fr" class="store-btn" target="_blank" rel="noopener">
+            <a href="https://play.google.com/store/apps/details?id=com.speed.delivro.buyer" class="store-btn" target="_blank" rel="noopener">
                 <img src="https://play.google.com/intl/fr_fr/badges/static/images/badges/fr_badge_web_generic.png" alt="Disponible sur Google Play">
             </a>
             <a href="https://apps.apple.com/fr/app/speeddelivro/id6747889248" class="store-btn" target="_blank" rel="noopener">
@@ -286,6 +294,7 @@
     </div>
 
     <script>
+        // Date de lancement: 01 Mai 2026 a 10h00 (heure locale Tunisie GMT+1)
         const launchDate = new Date('2026-05-01T10:00:00+01:00').getTime();
 
         function updateCountdown() {
